@@ -2,10 +2,26 @@
 import { useCounterStore } from "../stores/counter";
 import { ref, onMounted } from "vue";
 import { getPosts, type Post } from "../api/posts";
+import { useRouter } from "vue-router";
 
 const counterStore = useCounterStore();
 
 const posts = ref<Post[]>([]);
+
+const router = useRouter();
+
+const searchKeyword = ref<string>("");
+
+function goToSearch(): void {
+  if (searchKeyword.value.trim() === "") {
+    alert("请输入搜索关键字");
+    return;
+  }
+  router.push({
+    path: "/search",
+    query: { keyword: searchKeyword.value, page: 1 },
+  });
+}
 
 onMounted(async () => {
   try {
@@ -34,6 +50,14 @@ onMounted(async () => {
 <template>
   <div>
     <h2>首页</h2>
+    <div class="search-box">
+      <input
+        v-model="searchKeyword"
+        placeholder="搜索文章..."
+        @keyup.enter="goToSearch"
+      />
+      <button @click="goToSearch">搜索</button>
+    </div>
     <p>欢迎来到我的全栈博客！</p>
   </div>
   <div class="home">
@@ -45,28 +69,26 @@ onMounted(async () => {
       <p>{{ post.content }}</p>
     </div>
   </div>
-  <div class="counter-demo">
+  <!--   <div class="counter-demo">
     <h2>Pinia计数器</h2>
     <p>当前计数：{{ counterStore.count }}</p>
     <p>双倍值：{{ counterStore.doubleCount }}</p>
     <button @click="counterStore.increment">+1</button>
     <button @click="counterStore.reset">重置</button>
     <button @click="counterStore.decrement">-1</button>
-  </div>
+  </div> -->
 </template>
 <style scoped>
 .counter-demo {
   text-align: center;
   padding: 30px;
 }
-
 .buttons {
   display: flex;
   justify-content: center;
   gap: 10px;
   margin-top: 15px;
 }
-
 button {
   padding: 8px 20px;
   font-size: 16px;
@@ -82,5 +104,13 @@ button {
 .meta {
   color: #888;
   font-size: 14px;
+}
+.search-box {
+  margin-bottom: 20px;
+}
+.search-box input {
+  padding: 8px;
+  width: 250px;
+  margin-right: 10px;
 }
 </style>

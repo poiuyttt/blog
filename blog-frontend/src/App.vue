@@ -9,7 +9,7 @@ import NavBar from "./components/NavBar.vue";
   <BlogHeader />
   <NavBar />
   <RouterView />
-  <main class="main-content">
+  <!--   <main class="main-content">
     <BlogCard
       title="开始学习全栈"
       summary="从C#到Vue3，记录我的全栈学习之路"
@@ -19,7 +19,7 @@ import NavBar from "./components/NavBar.vue";
       title="掌握Props传参"
       summary="今天学会了父组件向子组件传递参数"
     />
-  </main>
+  </main> -->
 
   <BlogFooter />
 </template>
