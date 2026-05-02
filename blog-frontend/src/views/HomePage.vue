@@ -69,14 +69,14 @@ onMounted(async () => {
       <p>{{ post.content }}</p>
     </div>
   </div>
-  <!--   <div class="counter-demo">
+  <div class="counter-demo">
     <h2>Pinia计数器</h2>
     <p>当前计数：{{ counterStore.count }}</p>
     <p>双倍值：{{ counterStore.doubleCount }}</p>
     <button @click="counterStore.increment">+1</button>
     <button @click="counterStore.reset">重置</button>
     <button @click="counterStore.decrement">-1</button>
-  </div> -->
+  </div>
 </template>
 <style scoped>
 .counter-demo {
