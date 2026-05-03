@@ -3,12 +3,14 @@ import { useCounterStore } from "../stores/counter";
 import { ref, onMounted } from "vue";
 import { getPosts, type Post } from "../api/posts";
 import { useRouter } from "vue-router";
+import { useSearchStore } from "../stores/search";
 
 const counterStore = useCounterStore();
 
 const posts = ref<Post[]>([]);
 
 const router = useRouter();
+const searchStore = useSearchStore();
 
 const searchKeyword = ref<string>("");
 
@@ -17,10 +19,9 @@ function goToSearch(): void {
     alert("请输入搜索关键字");
     return;
   }
-  router.push({
-    path: "/search",
-    query: { keyword: searchKeyword.value, page: 1 },
-  });
+  searchStore.setKeyword(searchKeyword.value);
+  searchStore.setPage(1);
+  router.push("/search");
 }
 
 onMounted(async () => {
