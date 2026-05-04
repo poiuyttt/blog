@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BlogApi.Models.Dtos;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BlogApi.Controllers;
 
@@ -17,56 +18,75 @@ public class TodoController : ControllerBase
 
     // 1. 获取所有待办事项 (GET api/todo)
     [HttpGet]
-    public IActionResult GetAll()
+    public ActionResult<List<TodoDto>> GetAll()
     {
+        var dtos = _items.Select(i => new TodoDto()
+        {
+            Id = i.Id,
+            Title = i.Title,
+            IsComplete = i.IsComplete
+        }).ToList();
         // Ok()：返回 HTTP 200 状态码，并将参数序列化为 JSON
-        return Ok(_items);
+        return Ok(dtos);
     }
 
     // 2. 获取单个待办事项 (GET api/todo/5)
     // {id} 是路由参数，通过方法参数接收
     [HttpGet("{id}")]
-    public IActionResult GetById(int id)
+    public ActionResult<TodoDto> GetById(int id)
     {
         var item = _items.FirstOrDefault(i => i.Id == id);
         if (item == null)
-        {
             // NotFound()：返回 HTTP 404 状态码
             return NotFound(new { Message = $"ID 为 {id} 的项不存在" });
-        }
+        var dto = new TodoDto()
+        {
+            Id = item.Id,
+            Title = item.Title,
+            IsComplete = item.IsComplete
+        };
 
-        return Ok(item);
+        return Ok(dto);
     }
 
     // 3. 创建新的待办事项 (POST api/todo)
     [HttpPost]
-    public IActionResult Create([FromBody] TodoItem newItem)
+    public ActionResult<TodoDto> Create([FromBody] CreateTodoDto createDto)
     {
-        if (newItem == null || string.IsNullOrWhiteSpace(newItem.Title))
-        {
+        if (createDto == null || string.IsNullOrWhiteSpace(createDto.Title))
             // BadRequest()：返回 HTTP 400 状态码，表示客户端请求有误
             return BadRequest(new { Message = "标题不能为空" });
-        }
 
-        // 模拟数据库自增 ID
-        newItem.Id = _items.Count > 0 ? _items.Max(i => i.Id) + 1 : 1;
+        var newItem = new TodoItem()
+        {
+            Id = _items.Count > 0 ? _items.Max(i => i.Id) + 1 : 1,
+            Title = createDto.Title,
+            IsComplete = false
+        };
         _items.Add(newItem);
-
+        
+        var returnDto = new TodoDto()
+        {
+            Id = newItem.Id,
+            Title = newItem.Title,
+            IsComplete = newItem.IsComplete
+        };
         // CreatedAtAction()：返回 HTTP 201 状态码，并在响应头中包含新资源的 URI
-        return CreatedAtAction(nameof(GetById), new { id = newItem.Id }, newItem);
+        return CreatedAtAction(nameof(GetById), new { id = returnDto.Id }, returnDto);
     }
 
     // 4. 更新待办事项 (PUT api/todo/5)
     [HttpPut("{id}")]
-    public IActionResult Update(int id, [FromBody] TodoItem updatedItem)
+    public ActionResult<TodoDto> Update(int id, [FromBody] CreateTodoDto updatedDto)
     {
+        if (updatedDto == null || string.IsNullOrWhiteSpace(updatedDto.Title))
+            return BadRequest(new { Message = "标题不能为空" });
         var existingItem = _items.FirstOrDefault(i => i.Id == id);
         if (existingItem == null)
             return NotFound(new { Message = $"ID 为 {id} 的项不存在" });
 
         // 更新属性
-        existingItem.Title = updatedItem.Title;
-        existingItem.IsComplete = updatedItem.IsComplete;
+        existingItem.Title = updatedDto.Title;
 
         // NoContent()：返回 HTTP 204 状态码，表示更新成功但无内容返回
         return NoContent();
