@@ -1,8 +1,8 @@
-﻿using BlogApi.Controllers;
+﻿using BlogApi.Models;
 
 namespace BlogApi.Services;
 
-public interface IToService
+public interface ITodoService
 {
     IEnumerable<TodoItem> GetAll();
     TodoItem? GetById(int id);
