@@ -21,9 +21,6 @@ public class TodoService : ITodoService
 
     public TodoItem Create(string title)
     {
-        if (title == null || string.IsNullOrWhiteSpace(title))
-            throw new ArgumentException("标题不能为空");
-
         var newItem = new TodoItem()
         {
             Id = _items.Count > 0 ? _items.Max(i => i.Id) + 1 : 1,
@@ -36,9 +33,6 @@ public class TodoService : ITodoService
 
     public bool Update(int id, string title)
     {
-        if (title == null || string.IsNullOrWhiteSpace(title))
-            throw new ArgumentException("标题不能为空");
-
         var existingItem = _items.FirstOrDefault(i => i.Id == id);
         if (existingItem == null)
             return false;
@@ -48,11 +42,6 @@ public class TodoService : ITodoService
 
     public bool Delete(int id)
     {
-        if (id <= 0)
-        {
-            throw new ArgumentException("ID 不能为空");
-        }
-
         var existingItem = _items.FirstOrDefault(i => i.Id == id);
         if (existingItem == null)
             return false;
