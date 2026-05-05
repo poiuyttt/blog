@@ -1,3 +1,4 @@
+using BlogApi.Models.Configurations;
 using BlogApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ITodoService, TodoService>();
+builder.Services.Configure<PaginationSettings>(builder.Configuration.GetSection("Pagination"));
 
 var app = builder.Build();
 
