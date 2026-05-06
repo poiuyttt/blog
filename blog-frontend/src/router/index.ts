@@ -29,7 +29,6 @@ const routes = [
     path: "/article/:id",
     name: "article",
     component: () => import("../views/ArticlePage.vue"),
-    meta: { requiresAuth: true },
   },
   {
     path: "/search",
