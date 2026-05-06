@@ -1,4 +1,5 @@
-﻿using BlogApi.Models.Dtos;
+﻿using BlogApi.Models;
+using BlogApi.Models.Dtos;
 using BlogApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,7 +26,7 @@ public class TodoController : ControllerBase
     public IActionResult GetAll()
     {
         _logger.LogInformation("正在获取所有待办事项");
-        var items = _service.GetAll();
+        var items = _service.GetAll().Select(ToDto);
         _logger.LogInformation("获取到 {Count} 个待办事项", items.Count());
         return Ok(items);
     }
@@ -43,7 +44,7 @@ public class TodoController : ControllerBase
         var item = _service.Create(createDto.Title);
         _logger.LogInformation("创建待办事项 {Id}-{Title} 成功", item.Id, item.Title);
         // CreatedAtAction()：返回 HTTP 201 状态码，并在响应头中包含新资源的 URI
-        return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+        return CreatedAtAction(nameof(GetById), new { id = item.Id }, ToDto(item));
     }
 
     // 3. 获取单个待办事项 (GET api/todo/5)
@@ -59,8 +60,16 @@ public class TodoController : ControllerBase
             return NotFound();
         }
         _logger.LogInformation("获取待办事项:{Id} 成功", id);
-        return Ok(item);
+        return Ok(ToDto(item));
     }
+
+    // 将 TodoItem 实体映射为 TodoDto（对外契约）
+    private static TodoDto ToDto(TodoItem item) => new()
+    {
+        Id = item.Id,
+        Title = item.Title ?? string.Empty,
+        IsComplete = item.IsComplete
+    };
 
     // 4. 更新待办事项 (PUT api/todo/5)
     [HttpPut("{id}")]
