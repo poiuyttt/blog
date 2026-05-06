@@ -7,8 +7,9 @@ import NavBar from "./components/NavBar.vue";
 <template>
   <BlogHeader />
   <NavBar />
-  <RouterView />
-  <!--   <main class="main-content">
+  <main>
+    <RouterView />
+    <!--   <main class="main-content">
     <BlogCard
       title="开始学习全栈"
       summary="从C#到Vue3，记录我的全栈学习之路"
@@ -19,7 +20,7 @@ import NavBar from "./components/NavBar.vue";
       summary="今天学会了父组件向子组件传递参数"
     />
   </main> -->
-
+  </main>
   <BlogFooter />
 </template>
 
@@ -27,11 +28,10 @@ import NavBar from "./components/NavBar.vue";
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
 }
-
-.main-content {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+main {
+  min-height: calc(100vh - 200px);
+  padding: 20px 0;
 }
 </style>
