@@ -31,6 +31,16 @@ const routes = [
     component: () => import("../views/ArticlePage.vue"),
   },
   {
+    path: "/article/new",
+    name: "articleCreate",
+    component: () => import("../views/ArticleEdit.vue"),
+  },
+  {
+    path: "/article/:id/edit",
+    name: "articleEdit",
+    component: () => import("../views/ArticleEdit.vue"),
+  },
+  {
     path: "/search",
     name: "search",
     component: SearchPage,
