@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import CommentList from "../components/CommentList.vue";
 import VMdPreview from "@kangc/v-md-editor/lib/preview";
 import githubTheme from "@kangc/v-md-editor/lib/theme/github";
 import lineNumberPlugin from "@kangc/v-md-editor/lib/plugins/line-number/index";
@@ -56,6 +57,48 @@ const double = computed(() => count.value * 2);
 `,
   };
 });
+
+interface Comment {
+  id: number;
+  author: string;
+  content: string;
+  createdAt: string;
+}
+
+const comments = ref<Comment[]>([]);
+const commentsLoading = ref<boolean>(false);
+
+const handleRefreshComments = async () => {
+  commentsLoading.value = true;
+  //模拟异步加载评论
+  setTimeout(() => {
+    comments.value = [
+      {
+        id: 1,
+        author: "张三",
+        content: "这是一条评论",
+        createdAt: "2026-05-02",
+      },
+      {
+        id: 2,
+        author: "李四",
+        content: "这是另一条评论",
+        createdAt: "2026-05-02",
+      },
+    ];
+    commentsLoading.value = false;
+  }, 500);
+};
+
+const handleDeleteComment = (id: number) => {
+  comments.value = comments.value.filter((comment) => comment.id !== id);
+  console.log("删除评论ID:", id);
+};
+
+onMounted(() => {
+  //原有模拟文章数据加载
+  handleRefreshComments();
+});
 </script>
 
 <template>
@@ -78,6 +121,13 @@ const double = computed(() => count.value * 2);
       <v-md-preview :text="article.content" />
 
       <el-divider />
+      <!--评论组件-->
+      <CommentList
+        :comments="comments"
+        :loading="commentsLoading"
+        @refresh="handleRefreshComments"
+        @delete="handleDeleteComment"
+      />
       <div class="article-footer">
         <router-link to="/" class="back-link">← 返回首页</router-link>
       </div>

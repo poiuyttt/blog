@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useSearchStore } from "../stores/search";
 import PostList from "../components/PostList.vue";
@@ -11,6 +11,8 @@ interface Post {
   author: string;
   createdAt: string;
 }
+
+const isShow = ref(false);
 
 const posts = ref<Post[]>([]);
 
@@ -28,6 +30,22 @@ function goToSearch(): void {
   searchStore.setPage(1);
   router.push("/search");
 }
+
+function handleScroll(): void {
+  isShow.value = window.scrollY > 300;
+}
+
+function scrollToTop(): void {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+});
 
 onMounted(() => {
   posts.value = [
@@ -88,6 +106,9 @@ onMounted(() => {
     <h2 class="section-title">最新文章</h2>
     <PostList :posts="posts" />
   </div>
+  <div v-if="isShow" class="back-to-top">
+    <el-button type="primary" @click="scrollToTop">↑ 返回顶部</el-button>
+  </div>
 </template>
 <style scoped>
 button {
@@ -117,5 +138,12 @@ button {
   padding-left: 15px;
   margin-bottom: 25px;
   color: #2c3e50;
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 1000;
 }
 </style>
