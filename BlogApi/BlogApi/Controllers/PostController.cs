@@ -1,4 +1,5 @@
-﻿using BlogApi.Models.Dtos;
+﻿using BlogApi.Models;
+using BlogApi.Models.Dtos;
 using BlogApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +23,7 @@ public class PostController : ControllerBase
     {
         _logger.LogInformation("获取所有文章");
         var posrs = _postService.GetAll();
-        return Ok(posrs);
+        return Ok(ApiResponse<IEnumerable<Post>>.Ok(posrs, "获取文章列表成功"));
     }
 
     [HttpGet("{id}")]
@@ -31,10 +32,10 @@ public class PostController : ControllerBase
         var post = _postService.GetById(id);
         if (post == null)
         {
-            return NotFound(new { message = $"文章Id:{id}不存在" });
+            return NotFound(ApiResponse<Post>.NotFound($"文章Id:{id}不存在"));
         }
 
-        return Ok(post);
+        return Ok(ApiResponse<Post>.Ok(post, "获取文章成功"));
     }
 
     [HttpPost]
@@ -42,7 +43,7 @@ public class PostController : ControllerBase
     {
         _logger.LogInformation($"创建文章:{createPostDto.Title}");
         var post = _postService.Create(createPostDto.Title, createPostDto.Content, createPostDto.Summary);
-        return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
+        return CreatedAtAction(nameof(GetById), new { id = post.Id }, ApiResponse<Post>.Ok(post, "创建文章成功"));
     }
 
     [HttpPut("{id}")]
@@ -51,7 +52,7 @@ public class PostController : ControllerBase
         _logger.LogInformation($"更新文章:{id}");
         var success = _postService.Update(id, updatePostDto.Title, updatePostDto.Content, updatePostDto.Summary);
         if (!success)
-            return NotFound(new { message = $"文章Id:{id}不存在" });
+            return NotFound(ApiResponse<object>.NotFound($"文章Id:{id}不存在"));
         return NoContent();
     }
     
@@ -61,7 +62,7 @@ public class PostController : ControllerBase
         _logger.LogInformation($"删除文章:{id}");
         var success = _postService.Delete(id);
         if (!success)
-            return NotFound(new { message = $"文章Id:{id}不存在" });
+            return NotFound(ApiResponse<object>.NotFound($"文章Id:{id}不存在"));
         return NoContent();
     }
 }
