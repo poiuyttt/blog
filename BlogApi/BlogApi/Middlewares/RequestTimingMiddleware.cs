@@ -4,7 +4,7 @@
 /// 自定义中间件：记录每个 HTTP 请求的执行时间
 /// 中间件必须包含一个 InvokeAsync 方法
 /// </summary>
-public class RequestTimingMiddlewares
+public class RequestTimingMiddleware
 {
     // RequestDelegate：下一个中间件的引用
     // 作用：调用 _next(context) 就会把请求传递给管道中的下一个中间件
@@ -12,7 +12,7 @@ public class RequestTimingMiddlewares
 
     // 构造函数注入 RequestDelegate
     // 框架会自动把管道中的下一个中间件传给此参数
-    public RequestTimingMiddlewares(RequestDelegate next)
+    public RequestTimingMiddleware(RequestDelegate next)
     {
         _next = next;
     }
@@ -26,7 +26,7 @@ public class RequestTimingMiddlewares
         // Stopwatch：高精度计时器
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-        // 在请求头中添加自定义信息（响应前可以修改）
+        // 在响应头中添加自定义信息（响应前可以修改）
         context.Response.Headers["X-Request-Timing"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
         // 调用下一个中间件

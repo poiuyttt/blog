@@ -52,7 +52,7 @@ public class ApiResponse<T>
 
     /// <summary>
     /// 成功响应（无返回数据）
-    /// </summary>  
+    /// </summary>
     public static ApiResponse<T> Ok()
     {
         return Ok(default(T)!);
@@ -98,8 +98,4 @@ public class ApiResponse<T>
     {
         return Fail(StatusCodes.Status500InternalServerError, message);
     }
-    
-    
-    
-    
 }
