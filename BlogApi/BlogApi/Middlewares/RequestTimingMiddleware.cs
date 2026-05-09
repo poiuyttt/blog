@@ -45,7 +45,6 @@ public class RequestTimingMiddleware
         {
             context.Response.Headers["X-Response-Time-Ms"] = elapsedMs.ToString();
         }
-
         // 记录日志
         Console.WriteLine($"[{context.Request.Method}] {context.Request.Path} 执行耗时：{elapsedMs}ms");
     }

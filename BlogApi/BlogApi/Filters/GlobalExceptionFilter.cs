@@ -25,7 +25,7 @@ public class GlobalExceptionFilter : IExceptionFilter
     /// 当 Controller 中发生未处理的异常时，此方法会被自动调用
     /// </summary>
     public void OnException(ExceptionContext context)
-    { 
+    {
         // 记录异常详情（包括堆栈跟踪）
         // LogError：记录 Error 级别日志，第二个参数是异常对象
         _logger.LogError(context.Exception, $"捕获到未处理异常：{context.Exception.Message}");
@@ -43,7 +43,7 @@ public class GlobalExceptionFilter : IExceptionFilter
         {
             StatusCode = StatusCodes.Status500InternalServerError
         };
-        
+
         // 标记异常已处理，阻止异常继续向上抛出
         context.ExceptionHandled = true;
     }
