@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { type Post } from "../api/posts";
 
-interface Post {
-  id: number;
-  title: string;
-  summary: string;
-  author: string;
-  createdAt: string;
-}
 interface Props {
   posts: Post[];
 }
@@ -38,7 +32,7 @@ const handlePageChange = (page: number): void => {
       <div v-for="post in paginatedPosts" :key="post.id" class="post-card">
         <h3>{{ post.title }}</h3>
         <p class="post-meta">{{ post.author }} {{ post.createdAt }}</p>
-        <p class="post-summary">{{ post.summary }}</p>
+        <p class="post-summary">{{ post.summary || "暂无摘要" }}</p>
         <router-link :to="'/article/' + post.id" class="read-more"
           >阅读全文-></router-link
         >
