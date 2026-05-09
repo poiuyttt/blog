@@ -39,8 +39,12 @@ public class RequestTimingMiddleware
         // 获取执行耗时（单位：毫秒）
         long elapsedMs = stopwatch.ElapsedMilliseconds;
 
-        // 将耗时添加到响应头中
-        context.Response.Headers["X-Request-Timing"] = elapsedMs.ToString();
+
+        // ✅ 在修改响应头前，检查响应是否已经开始发送
+        if (!context.Response.HasStarted)
+        {
+            context.Response.Headers["X-Response-Time-Ms"] = elapsedMs.ToString();
+        }
 
         // 记录日志
         Console.WriteLine($"[{context.Request.Method}] {context.Request.Path} 执行耗时：{elapsedMs}ms");

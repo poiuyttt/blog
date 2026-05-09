@@ -1,3 +1,4 @@
+using BlogApi.Filters;
 using BlogApi.Middlewares;
 using BlogApi.Services;
 
@@ -7,7 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IPostService, PostService>();
 builder.Services.AddSingleton<GlobalExceptionFilter>();
-builder.Services.AddControllers(options => options.Filters.Add<GlobalExceptionFilter>());
+builder.Services.AddSingleton<ActionLoggingFilter>();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<GlobalExceptionFilter>();
+    options.Filters.Add<ActionLoggingFilter>();
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
