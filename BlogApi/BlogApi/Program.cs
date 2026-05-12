@@ -13,9 +13,9 @@ builder.Services.AddCors(Options =>
         policy =>
         {
             // WithOrigins：允许来自这些地址的跨域请求
-            // 开发环境：Vite 默认端口 5173
+            // 开发环境：Vite 默认端口 5173/5174
             policy
-                .WithOrigins("http://localhost:5173")
+                .WithOrigins("http://localhost:5173", "http://localhost:5174")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();

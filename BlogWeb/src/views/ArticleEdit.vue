@@ -71,6 +71,10 @@ const handleSubmit = async () => {
     }
   });
 };
+
+// 在 script 中引入组件
+import FileUpload from "../components/FileUpload.vue";
+// ... 其他代码保持不变 ...
 </script>
 
 <template>
@@ -114,6 +118,14 @@ const handleSubmit = async () => {
         <el-button @click="router.back()">取消</el-button>
       </el-form-item>
     </el-form>
+  </div>
+  <div class="edit-page">
+    <!-- ... 原有表单 ... -->
+
+    <!-- 临时放置文件上传组件用于测试 -->
+    <el-divider />
+    <h3>测试文件上传</h3>
+    <FileUpload />
   </div>
 </template>
 <style scoped>
