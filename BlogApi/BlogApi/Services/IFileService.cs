@@ -17,6 +17,6 @@
         /// </summary>
         /// <param name="relativePath">文件相对路径</param>
         /// <returns>文件字节数组，文件不存在则返回 null</returns>
-        Task<byte[]> GetFileByteAsync(string relativePath);
+        Task<byte[]> GetFileBytesAsync(string relativePath);
     }
 }
