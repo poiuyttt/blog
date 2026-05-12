@@ -21,7 +21,7 @@ namespace BlogApi.Controllers
         /// </summary>
         /// <param name="file">上传的文件（通过 FormData 发送）</param>
         [HttpPost("upload")]
-        public async Task<IActionResult> Upload([FromForm] IFormFile file)
+        public async Task<IActionResult> Upload(IFormFile file)
         {
             // 检查是否有文件上传
             if (file == null || file.Length == 0)
