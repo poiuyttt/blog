@@ -21,7 +21,6 @@ instance.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log("发送请求：", config.method?.toUpperCase(), config.url);
     return config;
   },
   (error) => Promise.reject(error),
@@ -29,22 +28,47 @@ instance.interceptors.request.use(
 
 // 响应拦截器：统一处理错误
 instance.interceptors.response.use(
-  (response: AxiosResponse) => response.data,
+  (response: AxiosResponse) => {
+    // 后端统一返回格式 { code, success, message, data }
+    const body = response.data;
+    if (body && body.success === false) {
+      // 业务错误，用 Element Plus 提示
+      ElMessage.error(body.message || "操作失败");
+      return Promise.reject(new Error(body.message || "操作失败"));
+    }
+    // 直接返回 data 字段，调用方少写一层 .data
+
+    return body;
+  },
   (error) => {
+    // 网络错误或 HTTP 错误状态码
     if (error.response) {
       const status = error.response.status;
-      if (status === 401) {
-        localStorage.removeItem("token");
-        alert("登录过期，请重新登录。");
-      } else if (status === 404) {
-        console.log("请求的资源不存在");
-      } else {
-        console.log(`服务器错误：${status}`);
+      const msg = error.response.data?.message || error.response.statusText;
+      switch (status) {
+        case 401:
+          ElMessage.error("登录过期，请重新登录。");
+          localStorage.removeItem("token");
+          // 跳转登录页（根据你的路由实现）
+          window.location.href = "/login";
+          break;
+        case 403:
+          ElMessage.error("权限不足，请联系管理员。");
+          break;
+        case 404:
+          ElMessage.error("资源不存在，请检查管理员。");
+          break;
+        case 500:
+          ElMessage.error("服务器内部错误，请联系管理员。");
+          break;
+        default:
+          ElMessage.error(msg || "请求失败");
+          break;
       }
     } else if (error.request) {
-      console.log("网络错误，无法连接到服务器");
+      ElMessage.error("网络连接失败，请检查网络设置。");
     } else {
-      console.log("请求配置错误：", error.message);
+      ElMessage.error("请求配置错误");
     }
     return Promise.reject(error);
   },
