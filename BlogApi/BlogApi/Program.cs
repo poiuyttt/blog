@@ -1,9 +1,17 @@
+using BlogApi.Data;
 using BlogApi.Filters;
 using BlogApi.Middlewares;
 using BlogApi.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
 
 //AddCors:注册CORS服务
 builder.Services.AddCors(Options =>

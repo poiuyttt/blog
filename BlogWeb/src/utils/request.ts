@@ -3,6 +3,7 @@ import axios, {
   type InternalAxiosRequestConfig,
   type AxiosResponse,
 } from "axios";
+import { ElMessage } from "element-plus";
 
 const instance: AxiosInstance = axios.create({
   // baseURL：后端 API 基地址（根据你的后端端口修改）
@@ -17,7 +18,7 @@ const instance: AxiosInstance = axios.create({
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem("token");
-    if (token) {
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     console.log("发送请求：", config.method?.toUpperCase(), config.url);
