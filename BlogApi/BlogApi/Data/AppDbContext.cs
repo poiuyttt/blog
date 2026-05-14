@@ -19,6 +19,7 @@ namespace BlogApi.Data
         /// </summary>
         public DbSet<Post> Posts => Set<Post>();
         public DbSet<Comment> Comments => Set<Comment>();
+        public DbSet<User> Users => Set<User>();
 
         /// <summary>
         /// 配置实体关系（可选，如果已经用特性配置则不是必须）

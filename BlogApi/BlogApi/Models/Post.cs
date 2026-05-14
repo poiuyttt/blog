@@ -35,4 +35,19 @@ public class Post
     /// 导航属性：本文章下的所有评论（一对多）
     /// </summary>
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+
+
+    public int? UserId { get; set; } // 外键，关联到 User 实体
+
+    [ForeignKey("UserId")]
+    public virtual User? User { get; set; }
+
+
+
+
+
+
+
+
 }

@@ -78,7 +78,7 @@ public class ApiResponse<T>
     /// <summary>
     /// 400 Bad Request
     /// </summary>
-    public static ApiResponse<T> BadReques(string message, List<string>? errors = null)
+    public static ApiResponse<T> BadRequest(string message, List<string>? errors = null)
     {
         return Fail(StatusCodes.Status400BadRequest, message, errors);
     }

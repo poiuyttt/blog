@@ -35,6 +35,7 @@ builder.Services.AddCors(Options =>
 
 builder.Services.AddSingleton<IPostService, PostService>();
 builder.Services.AddSingleton<IFileService, FileService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<GlobalExceptionFilter>();
 builder.Services.AddSingleton<ActionLoggingFilter>();
 builder.Services.AddControllers(options =>
