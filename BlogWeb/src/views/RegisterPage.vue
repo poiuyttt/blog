@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
+import { useRouter } from 'vue-router';
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import { useAuthStore } from '../stores/auth';
+import axios from 'axios';
+
+const router = useRouter();
+const authStore = useAuthStore();
 
 const formRef = ref<FormInstance>();
 
@@ -58,13 +64,29 @@ const rules: FormRules = {
 
 const handleRegister = async () => {
   if (!formRef.value) {
+    ElMessage.error("请输入用户名、邮箱、密码和确认密码");
     return;
   }
-  await formRef.value.validate((valid) => {
-    if (valid) {
-      ElMessage.success("注册成功");
+  await formRef.value.validate(async (valid=>{
+    if (!valid) {
+      ElMessage.error("请填写正确的用户名、邮箱、密码和确认密码");
+      return;
     }
-  });
+    try{
+      const res = await axios.post('https://localhost:7126/api/auth/register',{
+        username: registerForm.username,
+        email: registerForm.email,
+        password: registerForm.password,
+      });
+                  // 注册成功后自动登录（也可以提示用户去登录）
+                  authStore.setToken(res.data.token);
+      ElMessage.success("注册并登录成功！");
+      router.push("/");
+    }catch(err:any){
+      const msg = err.response?.data?.message || "注册失败";
+      ElMessage.error(msg);
+    }
+  }
 };
 </script>
 <template>

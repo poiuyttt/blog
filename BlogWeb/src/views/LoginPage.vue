@@ -2,8 +2,11 @@
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import { useAuthStore } from "../stores/auth";
+import axios from "axios";
 
 const router = useRouter();
+const authStore = useAuthStore();
 
 const loginForm = reactive({
   username: "",
@@ -34,18 +37,21 @@ const rules: FormRules = {
 };
 
 const handleLogin = async () => {
-  if (!formRef.value) {
+  if (!loginForm.username || !loginForm.password) {
+    ElMessage.error("请输入用户名和密码");
     return;
   }
-  await formRef.value.validate((valid) => {
-    if (valid) {
-      localStorage.setItem("token", "fake-jwt-token");
-      ElMessage.success("登录成功");
-      router.push("/");
-    } else {
-      ElMessage.error("登录失败");
-    }
-  });
+  try {
+    const res = await axios.post(
+      "https://localhost:7126/api/auth/login",
+      loginForm,
+    );
+    authStore.setAuth(res.data.token, res.data.user);
+    ElMessage.success("登录成功");
+    router.push("/");
+  } catch (err: any) {
+    ElMessage.error(err.response?.data?.message || "登录失败");
+  }
 };
 </script>
 <template>

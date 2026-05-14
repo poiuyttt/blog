@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 
 const router = useRouter();
+const authStore = useAuthStore();
 
 function isLoggedIn(): boolean {
-  return !!localStorage.getItem("token");
+  return !!authStore.token;
 }
 
 function handleLogout() {
-  localStorage.removeItem("token");
+  authStore.clearAuth();
   router.push("/");
 }
 </script>
@@ -20,9 +22,14 @@ function handleLogout() {
       <div class="nav-links">
         <router-link to="/">首页</router-link>
         <router-link to="/about">关于</router-link>
-        <router-link v-if="!isLoggedIn()" to="/login">登录</router-link>
-        <router-link v-if="!isLoggedIn()" to="/register">注册</router-link>
-        <a v-if="isLoggedIn()" @click="handleLogout" style="cursor: pointer"
+        <router-link v-if="!authStore.isLoggedIn" to="/login">登录</router-link>
+        <router-link v-if="!authStore.isLoggedIn" to="/register"
+          >注册</router-link
+        >
+        <a
+          v-if="authStore.isLoggedIn"
+          @click="handleLogout"
+          style="cursor: pointer"
           >退出</a
         >
       </div>
