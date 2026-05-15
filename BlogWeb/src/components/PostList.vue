@@ -1,26 +1,48 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { type Post } from "../api/posts";
+import { ref, computed, watch } from "vue";
+
+interface Post {
+  id: number;
+  title: string;
+  summary?: string;
+  author: string;
+  createdAt: string;
+}
 
 interface Props {
   posts: Post[];
+  loading?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  loading: false,
+});
 
+// 分页相关
 const currentPage = ref<number>(1);
 const pageSize = ref<number>(5);
 
-const totalPages = computed(() =>
+// computed：总页数
+const totalPages = computed<number>(() =>
   Math.ceil(props.posts.length / pageSize.value),
 );
 
+// computed：当前页数据
 const paginatedPosts = computed<Post[]>(() => {
   const start = (currentPage.value - 1) * pageSize.value;
   const end = start + pageSize.value;
   return props.posts.slice(start, end);
 });
 
+// 监听 posts 变化，重置页码
+watch(
+  () => props.posts,
+  () => {
+    currentPage.value = 1;
+  },
+);
+
+// 方法：页码切换
 const handlePageChange = (page: number): void => {
   currentPage.value = page;
 };
@@ -28,17 +50,21 @@ const handlePageChange = (page: number): void => {
 
 <template>
   <div class="post-list">
-    <div v-if="paginatedPosts.length > 0">
+    <div v-if="loading">
+      <el-skeleton :rows="5" animated />
+    </div>
+    <div v-else>
+      <div v-if="paginatedPosts.length === 0" class="empty">暂无文章</div>
       <div v-for="post in paginatedPosts" :key="post.id" class="post-card">
-        <h3>{{ post.title }}</h3>
-        <p class="post-meta">{{ post.author }} {{ post.createdAt }}</p>
+        <h3>
+          <router-link :to="'/article/' + post.id">{{
+            post.title
+          }}</router-link>
+        </h3>
+        <p class="post-meta">{{ post.author }} · {{ post.createdAt }}</p>
         <p class="post-summary">{{ post.summary || "暂无摘要" }}</p>
-        <router-link :to="'/article/' + post.id" class="read-more"
-          >阅读全文-></router-link
-        >
       </div>
     </div>
-    <div v-else class="empty">暂无文章</div>
 
     <div class="pagination-container" v-if="totalPages > 1">
       <!--
@@ -98,16 +124,6 @@ const handlePageChange = (page: number): void => {
   color: #555;
   line-height: 1.6;
   margin-bottom: 12px;
-}
-
-.read-more {
-  color: #409eff;
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.read-more:hover {
-  color: #337ecc;
 }
 
 .empty {

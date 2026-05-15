@@ -1,7 +1,7 @@
-<!-- 📄 src/views/ArticlePage.vue -->
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { getPostById, type Post } from "../api/posts";
 import CommentList from "../components/CommentList.vue";
 import VMdPreview from "@kangc/v-md-editor/lib/preview";
 import githubTheme from "@kangc/v-md-editor/lib/theme/github";
@@ -14,56 +14,8 @@ VMdPreview.use(
 );
 
 const route = useRoute();
-
-interface Article {
-  id: number;
-  title: string;
-  author: string;
-  createdAt: string;
-  content: string;
-}
-
-const article = ref<Article | null>(null);
-
-onMounted(() => {
-  const articleId = route.params.id;
-  console.log("正在加载文章，ID：", articleId);
-
-  // 模拟文章数据（后续替换为 API 调用）
-  article.value = {
-    id: Number(articleId),
-    title: "Vue3 组合式 API 入门",
-    author: "张三",
-    createdAt: "2026-05-02",
-    content: `## 什么是组合式 API？
-
-Vue3 引入的**组合式 API**（Composition API）提供了一种全新的组织组件逻辑的方式。
-
-### 核心概念
-
-\`\`\`typescript
-// ref：创建响应式基础类型
-const count = ref<number>(0);
-
-// computed：计算派生值，有缓存
-const double = computed(() => count.value * 2);
-\`\`\`
-
-### 优势
-
-1. **更好的逻辑复用**
-2. **更好的类型推导**
-3. **更清晰的代码组织**
-`,
-  };
-});
-
-interface Comment {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-}
+const article = ref<Post | null>(null);
+const loading = ref<boolean>(false);
 
 const comments = ref<Comment[]>([]);
 const commentsLoading = ref<boolean>(false);
@@ -94,6 +46,28 @@ const handleDeleteComment = (id: number) => {
   comments.value = comments.value.filter((comment) => comment.id !== id);
   console.log("删除评论ID:", id);
 };
+
+onMounted(async () => {
+  const articleId = Number(route.params.id);
+  loading.value = true;
+
+  // 调用 API 获取文章详情
+  try {
+    const data = await getPostById(articleId);
+    article.value = data;
+  } catch (error) {
+    console.error("获取文章详情失败:", error);
+  } finally {
+    loading.value = false;
+  }
+});
+
+interface Comment {
+  id: number;
+  author: string;
+  content: string;
+  createdAt: string;
+}
 
 onMounted(() => {
   //原有模拟文章数据加载
