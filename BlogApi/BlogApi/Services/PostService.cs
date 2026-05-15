@@ -25,7 +25,6 @@ public class PostService : IPostService
     {
         var post = new Post
         {
-
             Title = title,
             Content = content,
             Summary = summary,

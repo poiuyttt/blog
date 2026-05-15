@@ -42,7 +42,7 @@ public class PostController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
     {
         _logger.LogInformation($"创建文章:{createPostDto.Title}");
-        var post = await _postService.CreateAsync(createPostDto.Title, createPostDto.Content, createPostDto.Summary, createPostDto.Author);
+        var post = await _postService.CreateAsync(createPostDto.Title, createPostDto.Content, createPostDto.Summary, "当前用户");
         return CreatedAtAction(nameof(GetById), new { id = post.Id }, ApiResponse<Post>.Ok(post, "创建文章成功"));
     }
 
