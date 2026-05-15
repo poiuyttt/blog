@@ -1,65 +1,48 @@
-﻿using BlogApi.Models;
+﻿using BlogApi.Data;
+using BlogApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Services;
 
 public class PostService : IPostService
 {
-    private static List<Post> _posts = new();
-    private readonly ILogger<PostService> _logger;
+    private AppDbContext _context;
+    private ILogger<PostService> _logger;
 
-    public PostService(ILogger<PostService> logger)
+    public PostService(ILogger<PostService> logger, AppDbContext context)
     {
         _logger = logger;
-        if (_posts.Count == 0)
-        {
-            _posts.Add(new Post
-            {
-                Id = 1,
-                Title = "第一篇文章",
-                Content = "这是第一篇文章的内容",
-                Summary = "这是第一篇文章的摘要",
-                Author = "当前用户",
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            });
-            _posts.Add(new Post
-            {
-                Id = 2,
-                Title = "第二篇文章",
-                Content = "这是第二篇文章的内容",
-                Summary = "这是第二篇文章的摘要",
-                Author = "当前用户",
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            });
-        }
+        _context = context;
     }
 
-    public IEnumerable<Post> GetAll() => _posts.OrderByDescending(p => p.CreatedAt);
+    public async Task<IEnumerable<Post>> GetAllAsync() =>
+        await _context.Posts.OrderByDescending(p => p.CreatedAt).ToListAsync();
 
+    public async Task<Post?> GetByIdAsync(int id) =>
+        await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
 
-    public Post? GetById(int id) => _posts.FirstOrDefault(p => p.Id == id);
-
-    public Post Create(string title, string content, string? summary)
+    public async Task<Post> CreateAsync(string title, string content, string? summary, string author)
     {
         var post = new Post
         {
-            Id = _posts.Count > 0 ? _posts.Max(p => p.Id) + 1 : 1,
+
             Title = title,
             Content = content,
             Summary = summary,
-            Author = "当前用户",
+            Author = author,
             CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
+            UpdatedAt = DateTime.Now,
         };
-        _posts.Add(post);
+        await _context.Posts.AddAsync(post);
+        await _context.SaveChangesAsync();
+
         _logger.LogInformation($"创建文章Id:{post.Id}-Title:{post.Title}成功");
         return post;
     }
 
-    public bool Update(int id, string title, string content, string? summary)
+    public async Task<bool> UpdateAsync(int id, string title, string content, string? summary)
     {
-        var post = _posts.FirstOrDefault(p => p.Id == id);
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
         if (post == null)
         {
             _logger.LogWarning($"文章Id:{id}不存在");
@@ -70,20 +53,25 @@ public class PostService : IPostService
         post.Content = content;
         post.Summary = summary;
         post.UpdatedAt = DateTime.Now;
+
+        await _context.SaveChangesAsync();
+
         _logger.LogInformation($"更新文章Id:{id}成功");
         return true;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var post = _posts.FirstOrDefault(p => p.Id == id);
+        var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
         if (post == null)
         {
             _logger.LogWarning($"文章Id:{id}不存在");
             return false;
         }
 
-        _posts.Remove(post);
+        _context.Posts.Remove(post);
+        await _context.SaveChangesAsync();
+
         _logger.LogInformation($"删除文章Id:{id}成功");
         return true;
     }

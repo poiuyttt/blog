@@ -33,7 +33,7 @@ builder.Services.AddCors(Options =>
 
 // Add services to the container.
 
-builder.Services.AddSingleton<IPostService, PostService>();
+builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddSingleton<IFileService, FileService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<GlobalExceptionFilter>();

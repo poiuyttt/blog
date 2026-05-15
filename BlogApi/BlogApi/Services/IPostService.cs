@@ -8,13 +8,13 @@ namespace BlogApi.Services;
 public interface IPostService
 {
     // IEnumerable<Post>：返回文章集合（只读）
-    IEnumerable<Post> GetAll();
+    Task<IEnumerable<Post>> GetAllAsync();
 
-    Post? GetById(int id);
+    Task<Post?> GetByIdAsync(int id);
 
-    Post Create(string title, string content, string? summary);
+    Task<Post> CreateAsync(string title, string content, string? summary, string author);
 
-    bool Update(int id, string title, string content, string? summary);
+    Task<bool> UpdateAsync(int id, string title, string content, string? summary);
 
-    bool Delete(int id);
+    Task<bool> DeleteAsync(int id);
 }
