@@ -31,4 +31,8 @@ public class CreatePostDto
     /// </summary>
     [StringLength(200, ErrorMessage = "摘要长度必须在200个字符以内")]
     public string? Summary { get; set; } // string? 表示此字段可选
+
+    [Required(ErrorMessage = "作者名称不能为空")]
+    [StringLength(100, MinimumLength = 3, ErrorMessage = "作者名称长度必须在3-100个字符之间")]
+    public string Author { get; set; } = string.Empty;
 }
