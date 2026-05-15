@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
 import VMdPreview from "@kangc/v-md-editor/lib/preview";
+import FileUpload from "../components/FileUpload.vue";
 
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
+
+// el-form 的 ref 实例，用于调用 validate 方法
+const formRef = ref<FormInstance>();
 
 // 是否为编辑模式（根据路由参数判断）
 const isEdit = ref<boolean>(!!route.params.id);
+
+// 是否正在预览 Markdown
+const previewMode = ref<boolean>(false);
 
 //表单数据
 const form = reactive({
@@ -17,9 +26,22 @@ const form = reactive({
   summary: "",
 });
 
-// el-form 的 ref 实例，用于调用 validate 方法
-const formRef = ref<FormInstance>();
-
+const handleSubmit = async () => {
+  if (!formRef.value) return;
+  await formRef.value.validate((valid) => {
+    if (valid) {
+      if (isEdit.value) {
+        ElMessage.success("文章更新成功");
+      } else {
+        // 模拟创建文章
+        ElMessage.success("文章发布成功");
+      }
+      router.push("/");
+    } else {
+      ElMessage.error("请检查表单填写");
+    }
+  });
+};
 // 表单验证规则{
 const rules: FormRules = {
   title: [
@@ -41,40 +63,12 @@ const rules: FormRules = {
   ],
 };
 
-// 是否正在预览 Markdown
-const previewMode = ref<boolean>(false);
-
-// 模拟：如果是编辑模式，加载已有文章
 onMounted(() => {
-  if (isEdit.value) {
-    // 模拟加载已有文章
-    form.title = "编辑中的文章";
-    form.content = "##这是编辑文章的内容";
-    form.summary = "这是文章的摘要";
+  if (!authStore.isLoggedIn) {
+    ElMessage.error("请先登录");
+    router.push("/login");
   }
 });
-
-// 提交表单
-const handleSubmit = async () => {
-  if (!formRef.value) return;
-  await formRef.value.validate((valid) => {
-    if (valid) {
-      if (isEdit.value) {
-        ElMessage.success("文章更新成功");
-      } else {
-        // 模拟创建文章
-        ElMessage.success("文章发布成功");
-      }
-      router.push("/");
-    } else {
-      ElMessage.error("请检查表单填写");
-    }
-  });
-};
-
-// 在 script 中引入组件
-import FileUpload from "../components/FileUpload.vue";
-// ... 其他代码保持不变 ...
 </script>
 
 <template>

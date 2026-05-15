@@ -1,20 +1,24 @@
 <script setup lang="ts">
-import { ref } from "vue";
-
-interface Comment {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-}
+import { ref, onMounted } from "vue";
+import { ElMessage } from "element-plus";
+import { useAuthStore } from "../stores/auth";
+import {
+  getComments,
+  createComment,
+  deleteComment,
+  type Comment,
+} from "../api/comments";
 
 interface Props {
-  comments: Comment[];
-  loading?: boolean;
+  postId: number;
 }
-const props = withDefaults(defineProps<Props>(), {
-  loading: false,
-});
+
+const props = defineProps<Props>();
+const authStore = useAuthStore();
+
+const comments = ref<Comment[]>([]);
+const loading = ref<boolean>(false);
+const newComment = ref<string>("");
 
 // ----- Emits：向父组件发送事件 -----
 const emit = defineEmits<{
@@ -24,17 +28,49 @@ const emit = defineEmits<{
   (event: "delete", id: number): void;
 }>();
 
-// 新评论内容
-const newComment = ref<string>("");
-
-// 提交新评论
-const handleSubmit = () => {
-  if (!newComment.value.trim()) return;
-  // 先 emit 通知父组件，由父组件处理实际提交逻辑
-  emit("refresh");
-  newComment.value = "";
-  alert("评论提交功能将在下周接入API");
+// 加载评论
+const loadComments = async () => {
+  loading.value = true;
+  try {
+    comments.value = await getComments(props.postId);
+  } catch (err) {
+    ElMessage.error("加载评论失败");
+  } finally {
+    loading.value = false;
+  }
 };
+
+// 提交评论
+const handleSubmit = async () => {
+  if (!newComment.value.trim()) return;
+  try {
+    await createComment(
+      props.postId,
+      newComment.value,
+      authStore.user?.username,
+    );
+    newComment.value = "";
+    ElMessage.success("评论发表成功");
+    await loadComments(); // 重新加载评论列表
+  } catch (err) {
+    ElMessage.error("评论发表失败");
+  }
+};
+
+// 删除评论
+const handleDelete = async (id: number) => {
+  try {
+    await deleteComment(id);
+    ElMessage.success("评论已删除");
+    await loadComments();
+  } catch (err) {
+    ElMessage.error("删除失败");
+  }
+};
+
+onMounted(() => {
+  loadComments();
+});
 </script>
 
 <template>
@@ -59,7 +95,7 @@ const handleSubmit = () => {
           <el-button
             type="danger"
             size="small"
-            @click="emit('delete', comment.id)"
+            @click="handleDelete(comment.id)"
           >
             删除
           </el-button>
