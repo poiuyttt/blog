@@ -4,18 +4,12 @@ import { ElMessage, type UploadProps } from "element-plus";
 import { Plus } from "@element-plus/icons-vue";
 import request from "../utils/request";
 
-// 上传成功后返回的 URL 列表
 const uploadedUrls = ref<string[]>([]);
 
-// 自定义上传请求
-// 作用：接管 el-upload 的默认上传行为，使用 FormData 发送到后端 API
 const custUpload = async (option: any) => {
   // FormData：浏览器原生对象，用于构造 multipart/form-data 格式的请求体
   const formData = new FormData();
-  // append：向 FormData 中添加一个字段
-  // 'file' 必须与后端 [FromForm] IFormFile file 的参数名匹配
   formData.append("file", option.file);
-
   try {
     // axios.post：发送 POST 请求到文件上传 API
     const result = await request.post("/file/upload", formData, {
@@ -23,12 +17,10 @@ const custUpload = async (option: any) => {
         "Content-Type": "multipart/form-data",
       },
     });
-
-    uploadedUrls.value.push(result.url);
+    uploadedUrls.value.push(result.data.url);
     ElMessage.success("上传成功");
-    option.onSuccess(result, option.file);
+    option.onSuccess(result.data, option.file);
   } catch (error: any) {
-    console.error("上传失败:", error);
     ElMessage.error(error.response?.data?.message || "文件上传失败");
     // onError：通知 el-upload 上传失败
     option.onError(error);

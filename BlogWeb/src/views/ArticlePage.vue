@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { getPostById, type Post } from "../api/posts";
 import CommentList from "../components/CommentList.vue";
 import VMdPreview from "@kangc/v-md-editor/lib/preview";
@@ -14,38 +14,9 @@ VMdPreview.use(
 );
 
 const route = useRoute();
+const router = useRouter();
 const article = ref<Post | null>(null);
 const loading = ref<boolean>(false);
-
-const comments = ref<Comment[]>([]);
-const commentsLoading = ref<boolean>(false);
-
-const handleRefreshComments = async () => {
-  commentsLoading.value = true;
-  //模拟异步加载评论
-  setTimeout(() => {
-    comments.value = [
-      {
-        id: 1,
-        author: "张三",
-        content: "这是一条评论",
-        createdAt: "2026-05-02",
-      },
-      {
-        id: 2,
-        author: "李四",
-        content: "这是另一条评论",
-        createdAt: "2026-05-02",
-      },
-    ];
-    commentsLoading.value = false;
-  }, 500);
-};
-
-const handleDeleteComment = (id: number) => {
-  comments.value = comments.value.filter((comment) => comment.id !== id);
-  console.log("删除评论ID:", id);
-};
 
 onMounted(async () => {
   const articleId = Number(route.params.id);
@@ -53,25 +24,13 @@ onMounted(async () => {
 
   // 调用 API 获取文章详情
   try {
-    const data = await getPostById(articleId);
-    article.value = data;
+    const res = await getPostById(articleId);
+    article.value = res.data;
   } catch (error) {
     console.error("获取文章详情失败:", error);
   } finally {
     loading.value = false;
   }
-});
-
-interface Comment {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-}
-
-onMounted(() => {
-  //原有模拟文章数据加载
-  handleRefreshComments();
 });
 </script>
 
@@ -96,14 +55,9 @@ onMounted(() => {
 
       <el-divider />
       <!--评论组件-->
-      <CommentList
-        :comments="comments"
-        :loading="commentsLoading"
-        @refresh="handleRefreshComments"
-        @delete="handleDeleteComment"
-      />
+      <CommentList :post-id="article.id" />
       <div class="article-footer">
-        <router-link to="/" class="back-link">← 返回首页</router-link>
+        <span class="back-link" @click="router.push('/')">← 返回首页</span>
       </div>
     </div>
   </div>
@@ -133,6 +87,7 @@ onMounted(() => {
 .back-link {
   color: #409eff;
   text-decoration: none;
+  cursor: pointer;
 }
 .loading {
   padding: 50px 0;

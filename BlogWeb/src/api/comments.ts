@@ -9,7 +9,11 @@ export interface Comment {
 }
 
 // 获取指定文章的评论
-export function getComments(postId: number): Promise<Comment[]> {
+export function getComments(postId: number): Promise<{
+  success: boolean;
+  data: Comment[];
+  message: string;
+}> {
   return request.get("/comment", {
     params: {
       postId,
@@ -22,7 +26,11 @@ export function createComment(
   postId: number,
   content: string,
   author?: string,
-): Promise<Comment> {
+): Promise<{
+  success: boolean;
+  data: Comment;
+  message: string;
+}> {
   return request.post("/comment", {
     postId,
     content,

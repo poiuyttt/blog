@@ -7,45 +7,28 @@ interface Post {
   summary?: string;
   author: string;
   createdAt: string;
+  commentCount: number;
 }
 
 interface Props {
   posts: Post[];
   loading?: boolean;
+  currentPage: number;
+  totalCount: number;
+  pageSize: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
 });
 
-// 分页相关
-const currentPage = ref<number>(1);
-const pageSize = ref<number>(5);
+const emit = defineEmits<{
+  (event: "page-change", page: number): void;
+}>();
 
-// computed：总页数
 const totalPages = computed<number>(() =>
-  Math.ceil(props.posts.length / pageSize.value),
+  Math.ceil(props.totalCount / props.pageSize),
 );
-
-// computed：当前页数据
-const paginatedPosts = computed<Post[]>(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return props.posts.slice(start, end);
-});
-
-// 监听 posts 变化，重置页码
-watch(
-  () => props.posts,
-  () => {
-    currentPage.value = 1;
-  },
-);
-
-// 方法：页码切换
-const handlePageChange = (page: number): void => {
-  currentPage.value = page;
-};
 </script>
 
 <template>
@@ -54,35 +37,28 @@ const handlePageChange = (page: number): void => {
       <el-skeleton :rows="5" animated />
     </div>
     <div v-else>
-      <div v-if="paginatedPosts.length === 0" class="empty">暂无文章</div>
-      <div v-for="post in paginatedPosts" :key="post.id" class="post-card">
+      <div v-if="totalCount === 0" class="empty">暂无文章</div>
+      <div v-for="post in posts" :key="post.id" class="post-card">
         <h3>
           <router-link :to="'/article/' + post.id">{{
             post.title
           }}</router-link>
         </h3>
-        <p class="post-meta">{{ post.author }} · {{ post.createdAt }}</p>
+        <p class="post-meta">
+          {{ post.author }} · {{ post.createdAt }} ·
+          {{ post.commentCount }} 条评论
+        </p>
         <p class="post-summary">{{ post.summary || "暂无摘要" }}</p>
       </div>
     </div>
-
     <div class="pagination-container" v-if="totalPages > 1">
-      <!--
-                el-pagination 分页组件
-                background：带背景色的页码按钮
-                layout：分页器布局，"prev, pager, next" 表示上一页、页码、下一页
-                :total：总条数
-                :page-size：每页条数
-                :current-page：当前页码
-                @current-change：页码切换事件
-            -->
       <el-pagination
         background
         layout="prev, pager, next"
-        :total="props.posts.length"
+        :total="totalCount"
         :page-size="pageSize"
         :current-page="currentPage"
-        @current-change="handlePageChange"
+        @current-change="(page: number) => emit('page-change', page)"
       />
     </div>
   </div>

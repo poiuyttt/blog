@@ -114,9 +114,6 @@ onMounted(() => {
     </el-form>
   </div>
   <div class="edit-page">
-    <!-- ... 原有表单 ... -->
-
-    <!-- 临时放置文件上传组件用于测试 -->
     <el-divider />
     <h3>测试文件上传</h3>
     <FileUpload />

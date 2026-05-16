@@ -1,4 +1,4 @@
-﻿using BlogApi.Data;
+using BlogApi.Data;
 using BlogApi.Models;
 using BlogApi.Models.Dtos;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +31,7 @@ public class PostService : IPostService
             .ToListAsync();
 
     public async Task<Post?> GetByIdAsync(int id) =>
-        await _context.Posts.Include(p => p.Comments).FirstOrDefaultAsync(p => p.Id == id);
+        await _context.Posts.FirstOrDefaultAsync(p => p.Id == id);
 
     public async Task<Post> CreateAsync(
         string title,

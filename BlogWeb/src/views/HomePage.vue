@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, onUnmounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useSearchStore } from "../stores/search";
-import { getPosts, type Post } from "../api/posts";
 import PostList from "../components/PostList.vue";
+import { getPagedPosts, type Post } from "../api/posts";
 
+const posts = ref<Post[]>([]);
+const loading = ref<boolean>(false);
+const currentPage = ref<number>(1);
+const pageSize = ref<number>(5);
+const totalCount = ref<number>(0);
+const route = useRoute();
 const router = useRouter();
 const searchStore = useSearchStore();
 const isShow = ref(false);
 const searchKeyword = ref<string>("");
 
-// 文章列表
-const posts = ref<Post[]>([]);
-
 // 加载中状态
-const loading = ref<boolean>(false);
 
 function goToSearch(): void {
   if (!searchKeyword.value.trim()) {
@@ -27,17 +29,18 @@ function goToSearch(): void {
 }
 
 // onMounted：页面加载后从后端获取文章列表
-onMounted(async () => {
+const loadPosts = async () => {
   loading.value = true;
   try {
-    const data = await getPosts();
-    posts.value = data;
+    const res = await getPagedPosts(currentPage.value, pageSize.value);
+    posts.value = res.data.data;
+    totalCount.value = res.data.totalCount;
   } catch (error) {
     console.error("获取文章列表失败：", error);
   } finally {
     loading.value = false;
   }
-});
+};
 
 function handleScroll(): void {
   isShow.value = window.scrollY > 300;
@@ -48,12 +51,26 @@ function scrollToTop(): void {
 }
 
 onMounted(() => {
+  loadPosts();
+});
+
+onMounted(() => {
   window.addEventListener("scroll", handleScroll);
 });
 
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
 });
+
+// 路由变化时重新加载数据
+watch(
+  () => route.path,
+  () => {
+    if (route.path === "/") {
+      loadPosts();
+    }
+  },
+);
 </script>
 <template>
   <div class="home">
@@ -71,7 +88,15 @@ onUnmounted(() => {
   <div v-if="loading">
     <el-skeleton :rows="5" animated />
   </div>
-  <PostList v-else :posts="posts" />
+  <PostList
+    v-else
+    :posts="posts"
+    :loading="loading"
+    :currentPage="currentPage"
+    :totalCount="totalCount"
+    :pageSize="pageSize"
+    @page-change="loadPosts"
+  />
   <div v-if="isShow" class="back-to-top">
     <el-button type="primary" @click="scrollToTop">↑ 返回顶部</el-button>
   </div>

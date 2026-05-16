@@ -32,7 +32,8 @@ const emit = defineEmits<{
 const loadComments = async () => {
   loading.value = true;
   try {
-    comments.value = await getComments(props.postId);
+    const res = await getComments(props.postId);
+    comments.value = res.data;
   } catch (err) {
     ElMessage.error("加载评论失败");
   } finally {

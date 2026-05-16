@@ -91,7 +91,7 @@ public class PostController : ControllerBase
             ApiResponse<object>.Ok(
                 new
                 {
-                    Items = data,
+                    Data = data,
                     TotalCount = totalCount,
                     Page = page,
                     PageSize = pageSize,
