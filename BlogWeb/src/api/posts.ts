@@ -25,16 +25,16 @@ export function getPostById(id: number): Promise<{
 
 export function getPagedPosts(
   page: number = 1,
-  pagesize: number = 5,
+  pageSize: number = 5,
 ): Promise<{
   success: boolean;
   data: {
     totalCount: number;
     page: number;
-    pagesize: number;
-    totalPage: number;
+    pageSize: number;
+    totalPages: number;
     data: Post[];
   };
 }> {
-  return request.get("/post/paged", { params: { page, pagesize } });
+  return request.get("/post/paged", { params: { page, pageSize } });
 }
