@@ -34,11 +34,13 @@ const routes = [
     path: "/article/new",
     name: "articleCreate",
     component: () => import("../views/ArticleEdit.vue"),
+    meta: { requiresAuth: true },
   },
   {
     path: "/article/:id/edit",
     name: "articleEdit",
     component: () => import("../views/ArticleEdit.vue"),
+    meta: { requiresAuth: true },
   },
   {
     path: "/search",

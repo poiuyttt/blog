@@ -1,17 +1,14 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import type { UserProfile } from "../api/user";
 
 export const useAuthStore = defineStore(
   "auth",
   () => {
     // ========== 状态 ==========
     const token = ref<string>(localStorage.getItem("token") || "");
-    const user = ref<{
-      id: number;
-      username: string;
-      email: string;
-      avatar: string;
-    } | null>(null);
+    // 用户信息
+    const user = ref<UserProfile | null>(null);
     // ========== 计算属性 ==========
     // computed：是否已登录
     const isLoggedIn = computed<boolean>(() => !!token.value);
@@ -22,6 +19,10 @@ export const useAuthStore = defineStore(
       user.value = userData;
       localStorage.setItem("token", newToken);
     }
+    // setUser：更新用户信息（个人资料编辑后调用）
+    function setUser(userData: typeof user.value) {
+      user.value = userData;
+    }
     // clearAuth：清除登录信息
     function clearAuth() {
       token.value = "";
@@ -29,12 +30,12 @@ export const useAuthStore = defineStore(
       localStorage.removeItem("token");
     }
 
-    return { token, user, isLoggedIn, setAuth, clearAuth };
+    return { token, user, isLoggedIn, setAuth, setUser, clearAuth };
   },
   {
     persist: {
       key: "auth-store",
-      paths: ["token", "user"],
+      pick: ["token", "user"],
     },
   },
 );

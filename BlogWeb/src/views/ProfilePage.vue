@@ -1,21 +1,18 @@
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import { useAuthStore } from "../stores/auth";
+import { updateProfile, type UserProfile } from "../api/user";
 
-// 用户信息（模拟数据，后续从 Pinia Store 或 API 获取）
-const uesrInfo = reactive({
-  username: "张三",
-  email: "zhangsan@example.com",
-  avatar: "https://picsum.photos/100/100?random=1",
-  bio: "全栈开发学习者，热爱 C# 和 Vue3。",
-  createdAt: "2026-04-20",
+const authStore = useAuthStore();
+const loading = ref<boolean>(false);
+
+const userInfo = ref<UserProfile>({
+  id: 0,
+  username: "",
+  email: "",
+  bio: "",
 });
-
-// 编辑模式开关
-const isEditing = ref<boolean>(false);
-
-// 表单 ref 实例
-const formRef = ref<FormInstance>();
 
 // 编辑用的表单数据（复制一份，避免直接修改原数据）
 const editForm = reactive({
@@ -23,6 +20,40 @@ const editForm = reactive({
   email: "",
   bio: "",
 });
+
+const isEditing = ref<boolean>(false);
+
+onMounted(() => {
+  if (authStore.user) {
+    userInfo.value = {
+      id: authStore.user.id,
+      username: authStore.user.username,
+      email: authStore.user.email,
+      bio: authStore.user.bio,
+    };
+    editForm.username = userInfo.value.username;
+    editForm.email = userInfo.value.email;
+    editForm.bio = userInfo.value.bio || "";
+  }
+});
+
+const handleSave = async () => {
+  loading.value = true;
+  try {
+    const res = await updateProfile(editForm);
+    authStore.setUser(res.data);
+    userInfo.value = { ...res.data };
+    isEditing.value = false;
+    ElMessage.success("个人信息已更新");
+  } catch (err: any) {
+    ElMessage.error(err.message?.data?.message || "更新失败");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 表单 ref 实例
+const formRef = ref<FormInstance>();
 
 // 表单验证规则
 const rules: FormRules = {
@@ -43,32 +74,15 @@ const rules: FormRules = {
 
 // 进入编辑模式
 const startEdit = () => {
-  editForm.username = uesrInfo.username;
-  editForm.email = uesrInfo.email;
-  editForm.bio = uesrInfo.bio;
+  editForm.username = userInfo.value.username;
+  editForm.email = userInfo.value.email;
+  editForm.bio = userInfo.value.bio || "";
   isEditing.value = true;
 };
 
 //取消编辑模式
 const cancelEdit = () => {
   isEditing.value = false;
-};
-
-//保存修改
-const handleSave = async () => {
-  if (!formRef.value) return;
-  // validate：执行表单验证
-  await formRef.value.validate((valid) => {
-    if (valid) {
-      uesrInfo.username = editForm.username;
-      uesrInfo.email = editForm.email;
-      uesrInfo.bio = editForm.bio;
-      isEditing.value = false;
-      ElMessage.success("修改成功");
-    } else {
-      ElMessage.error("请填写完整信息");
-    }
-  });
 };
 </script>
 
@@ -79,10 +93,9 @@ const handleSave = async () => {
     <!-- 用户信息卡片 -->
     <el-card class="profile-card">
       <div class="profile-header">
-        <img :src="uesrInfo.avatar" alt="头像" class="avatar" />
+        <img :src="userInfo.avatar" alt="头像" class="avatar" />
         <div class="basic-info">
-          <h3>{{ uesrInfo.username }}</h3>
-          <p class="join-date">加入于：{{ uesrInfo.createdAt }}</p>
+          <h3>{{ userInfo.username }}</h3>
         </div>
       </div>
     </el-card>
@@ -91,11 +104,11 @@ const handleSave = async () => {
     <div v-if="!isEditing" class="view-mode">
       <div class="info-item">
         <span class="label">邮箱：</span>
-        <span>{{ uesrInfo.email }}</span>
+        <span>{{ userInfo.email }}</span>
       </div>
       <div class="info-item">
         <span class="label">个人简介：</span>
-        <span>{{ uesrInfo.bio || "暂无简介" }}</span>
+        <span>{{ userInfo.bio || "暂无简介" }}</span>
       </div>
       <el-button type="primary" @click="startEdit">编辑资料 </el-button>
     </div>

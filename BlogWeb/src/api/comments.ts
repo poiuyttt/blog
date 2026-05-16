@@ -33,7 +33,7 @@ export function createComment(
 }> {
   return request.post("/comment", {
     postId,
-    content,
+    comment: content,
     author,
   });
 }

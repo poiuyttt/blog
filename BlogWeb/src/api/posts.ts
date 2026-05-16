@@ -38,3 +38,30 @@ export function getPagedPosts(
 }> {
   return request.get("/post/paged", { params: { page, pageSize } });
 }
+
+export function createPost(data: {
+  title: string;
+  content: string;
+  summary?: string;
+}): Promise<{
+  success: boolean;
+  data: Post;
+  message: string;
+}> {
+  return request.post("/post", data);
+}
+
+export function updatePost(
+  id: number,
+  data: {
+    title: string;
+    content: string;
+    summary?: string;
+  },
+): Promise<{
+  success: boolean;
+  data: Post;
+  message: string;
+}> {
+  return request.put(`/post/${id}`, data);
+}
