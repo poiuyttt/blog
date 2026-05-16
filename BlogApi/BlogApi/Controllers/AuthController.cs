@@ -26,9 +26,7 @@ namespace BlogApi.Controllers
         {
             var user = await _userService.RegisterAsync(dto.Username, dto.Email, dto.Password);
             if (user == null)
-            {
                 return BadRequest(ApiResponse<object>.BadRequest("用户名或邮箱已被注册"));
-            }
 
             _logger.LogInformation($"新用户注册：{user.Username}");
             return Ok(
@@ -50,9 +48,7 @@ namespace BlogApi.Controllers
         {
             var user = await _userService.LoginAsync(dto.Username, dto.Password);
             if (user == null)
-            {
                 return Unauthorized(new { Message = "用户名或密码错误" });
-            }
 
             // 生成一个简单 Token（后续引入 JWT 后替换）
             string token = Convert.ToBase64String(
@@ -72,6 +68,33 @@ namespace BlogApi.Controllers
                         user.Avatar,
                     },
                 }
+            );
+        }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+        {
+            int userId = 1;
+
+            var user = await _userService.UpdateProfileAsync(
+                userId,
+                dto.Username,
+                dto.EmailAddress,
+                dto.Bio
+            );
+            if (user == null)
+                return BadRequest(ApiResponse<object>.BadRequest("用户名已被占用或用户不存在"));
+            return Ok(
+                ApiResponse<object>.Ok(
+                    new
+                    {
+                        user.Id,
+                        user.Username,
+                        user.Email,
+                        user.Bio,
+                    },
+                    "个人信息更新成功"
+                )
             );
         }
     }

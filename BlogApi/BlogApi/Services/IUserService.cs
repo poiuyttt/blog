@@ -28,5 +28,10 @@ namespace BlogApi.Services
         /// 检查邮箱是否已被注册
         /// </summary>
         Task<bool> IsEmailTakenAsync(string email);
+
+        /// <summary>
+        /// 更新用户个人信息
+        /// </summary>
+        Task<User?> UpdateProfileAsync(int userId, string username, string email, string? bio);
     }
 }

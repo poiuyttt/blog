@@ -99,5 +99,37 @@ namespace BlogApi.Services
         {
             return HashPassword(password) == hash;
         }
+
+        async Task<User?> IUserService.UpdateProfileAsync(
+            int userId,
+            string username,
+            string email,
+            string? bio
+        )
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (userId == null)
+            {
+                _logger.LogWarning($"更新失败：用户ID {userId} 不存在");
+                return null;
+            }
+
+            var nameConflict = await _context.Users.AnyAsync(u =>
+                u.Username == username && u.Id != userId
+            );
+            if (nameConflict)
+            {
+                _logger.LogWarning($"更新失败：用户名 {username} 已被使用");
+                return null;
+            }
+
+            user.Username = username;
+            user.Email = email;
+            user.Bio = bio;
+
+            await _context.SaveChangesAsync();
+            _logger.LogInformation($"用户资料更新成功：{username}");
+            return user;
+        }
     }
 }

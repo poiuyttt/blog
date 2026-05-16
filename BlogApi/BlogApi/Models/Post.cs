@@ -36,8 +36,6 @@ public class Post
     /// </summary>
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
-
-
     public int? UserId { get; set; } // 外键，关联到 User 实体
 
     [ForeignKey("UserId")]

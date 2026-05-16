@@ -48,8 +48,8 @@ const rules: FormRules = {
     { required: true, message: "请输入标题", trigger: ["blur"] },
     {
       min: 3,
-      max: 20,
-      message: "标题长度必须在3到20个字符之间",
+      max: 200,
+      message: "标题长度必须在3到200个字符之间",
       trigger: ["blur"],
     },
   ],
