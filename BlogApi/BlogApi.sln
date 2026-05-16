@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11806.211 stable
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogApi", "BlogApi\BlogApi.csproj", "{2F50264D-7146-4BC8-8BEF-08FC153D36AB}"
 EndProject
 Global
@@ -12,5 +15,11 @@ Global
 		{2F50264D-7146-4BC8-8BEF-08FC153D36AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F50264D-7146-4BC8-8BEF-08FC153D36AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F50264D-7146-4BC8-8BEF-08FC153D36AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C28FAF7A-D564-4FF7-8546-B5071AC41499}
 	EndGlobalSection
 EndGlobal

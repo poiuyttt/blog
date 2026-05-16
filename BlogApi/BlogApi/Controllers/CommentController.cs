@@ -31,6 +31,7 @@ namespace BlogApi.Controllers
             }
             catch (InvalidOperationException ex)
             {
+                _logger.LogWarning(ex, "获取评论失败，目标文章不存在");
                 return BadRequest(ApiResponse<object>.BadRequest($"文章{postId}不存在"));
             }
         }
@@ -52,6 +53,7 @@ namespace BlogApi.Controllers
             }
             catch (InvalidOperationException ex)
             {
+                _logger.LogWarning(ex, "创建评论失败，目标文章不存在");
                 return BadRequest(ApiResponse<object>.BadRequest(ex.Message));
             }
         }

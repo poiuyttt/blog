@@ -1,4 +1,5 @@
 ﻿using BlogApi.Models;
+using BlogApi.Models.Dtos;
 
 namespace BlogApi.Services;
 
@@ -7,8 +8,8 @@ namespace BlogApi.Services;
 /// </summary>
 public interface IPostService
 {
-    // IEnumerable<Post>：返回文章集合（只读）
-    Task<IEnumerable<Post>> GetAllAsync();
+    // IEnumerable<PostListDto>：返回文章列表 DTO 集合（只读）
+    Task<IEnumerable<PostListDto>> GetAllAsync();
 
     Task<Post?> GetByIdAsync(int id);
 
@@ -17,4 +18,6 @@ public interface IPostService
     Task<bool> UpdateAsync(int id, string title, string content, string? summary);
 
     Task<bool> DeleteAsync(int id);
+
+    Task<(IEnumerable<PostListDto> Data, int TotalCount)> GetPagedAsync(int page, int pageSize);
 }
