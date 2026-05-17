@@ -14,7 +14,7 @@ const instance: AxiosInstance = axios.create({
   },
 });
 
-// 请求拦截器：自动添加 Token（如有）
+// 请求拦截器：自动添加 Token
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem("token");
@@ -29,15 +29,11 @@ instance.interceptors.request.use(
 // 响应拦截器：统一处理错误
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
-    // 后端统一返回格式 { code, success, message, data }
     const body = response.data;
     if (body && body.success === false) {
-      // 业务错误，用 Element Plus 提示
       ElMessage.error(body.message || "操作失败");
       return Promise.reject(new Error(body.message || "操作失败"));
     }
-    // 直接返回 data 字段，调用方少写一层 .data
-
     return body;
   },
   (error) => {
@@ -49,7 +45,6 @@ instance.interceptors.response.use(
         case 401:
           ElMessage.error("登录过期，请重新登录。");
           localStorage.removeItem("token");
-          // 跳转登录页（根据你的路由实现）
           window.location.href = "/login";
           break;
         case 403:
