@@ -48,6 +48,13 @@ onMounted(async () => {
         <span>发布于：{{ article.createdAt }}</span>
       </div>
 
+      <div v-if="article.summary" class="article-summary">
+        <el-divider />
+        <div class="summary-box">
+          <strong>摘要：</strong>{{ article.summary }}
+        </div>
+      </div>
+
       <el-divider />
 
       <!-- <v-md-preview>：Markdown 渲染组件，在 main.ts 中全局注册后可直接使用 -->
@@ -80,6 +87,18 @@ onMounted(async () => {
   display: flex;
   gap: 20px;
   justify-content: center;
+}
+
+.article-summary {
+  margin: 15px 0;
+}
+
+.summary-box {
+  background-color: #f4f3ec;
+  padding: 15px 20px;
+  border-radius: 8px;
+  color: #555;
+  line-height: 1.6;
 }
 .article-footer {
   margin-top: 30px;

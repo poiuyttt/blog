@@ -29,7 +29,8 @@ function goToSearch(): void {
 }
 
 // onMounted：页面加载后从后端获取文章列表
-const loadPosts = async () => {
+const loadPosts = async (page: number = 1) => {
+  currentPage.value = page;
   loading.value = true;
   try {
     const res = await getPagedPosts(currentPage.value, pageSize.value);
