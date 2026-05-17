@@ -107,4 +107,28 @@ public class PostController : ControllerBase
             )
         );
     }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search(
+        [FromQuery] string keyword = "",
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        _logger.LogInformation($"搜索文章，关键词:{keyword}");
+        var (data, totalCount) = await _postService.SearchAsync(keyword, page, pageSize);
+        return Ok(
+            ApiResponse<object>.Ok(
+                new
+                {
+                    Data = data,
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                },
+                "搜索成功"
+            )
+        );
+    }
 }

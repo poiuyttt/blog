@@ -118,4 +118,42 @@ public class PostService : IPostService
             .ToListAsync();
         return (data, totalCount);
     }
+
+    public async Task<(IEnumerable<PostListDto> Data, int TotalCount)> SearchAsync(
+        string keyword,
+        int page,
+        int pageSize
+    )
+    {
+        var query = _context.Posts.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            query = query.Where(p =>
+                p.Title.Contains(keyword) ||
+                (p.Summary != null && p.Summary.Contains(keyword)) ||
+                p.Content.Contains(keyword)
+            );
+        }
+
+        query = query.OrderByDescending(p => p.CreatedAt);
+        int totalCount = await query.CountAsync();
+
+        var data = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => new PostListDto
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Summary = p.Summary,
+                Author = p.Author,
+                CreatedAt = p.CreatedAt,
+                CommentCount = p.Comments.Count(),
+            })
+            .ToListAsync();
+
+        _logger.LogInformation($"搜索关键词:{keyword}, 找到:{totalCount}条结果");
+        return (data, totalCount);
+    }
 }

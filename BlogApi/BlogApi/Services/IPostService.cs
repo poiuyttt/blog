@@ -20,4 +20,6 @@ public interface IPostService
     Task<bool> DeleteAsync(int id);
 
     Task<(IEnumerable<PostListDto> Data, int TotalCount)> GetPagedAsync(int page, int pageSize);
+
+    Task<(IEnumerable<PostListDto> Data, int TotalCount)> SearchAsync(string keyword, int page, int pageSize);
 }
