@@ -153,9 +153,8 @@ watch(
 
 <style scoped>
 .article-page {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 20px;
+  width: 100%;
+  padding: 0;
 }
 
 .article-content {

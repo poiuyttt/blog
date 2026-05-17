@@ -10,6 +10,7 @@ export interface Post {
   updatedAt?: string;
   commentCount: number;
   categoryName?: string;
+  categoryId?: number;
 }
 
 export interface Category {
@@ -110,4 +111,11 @@ export function createCategory(data: { name: string }): Promise<{
   message: string;
 }> {
   return request.post("/category", data);
+}
+
+export function deleteCategory(id: number): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  return request.delete(`/category/${id}`);
 }

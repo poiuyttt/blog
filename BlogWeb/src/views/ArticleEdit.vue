@@ -8,6 +8,7 @@ import {
   getPostById,
   getCategories,
   createCategory,
+  deleteCategory,
   type Category,
 } from "../api/posts";
 
@@ -79,6 +80,21 @@ const handleCreateCategory = async () => {
   }
 };
 
+// ========== 删除分类 ==========
+const handleDeleteCategory = async (categoryId: number) => {
+  try {
+    await deleteCategory(categoryId);
+    ElMessage.success("分类删除成功");
+    // 如果删除了当前选中的分类，清空选中
+    if (form.categoryId === categoryId) {
+      form.categoryId = null;
+    }
+    await loadCategories();
+  } catch (error) {
+    ElMessage.error("删除分类失败");
+  }
+};
+
 // ========== 编辑模式：加载已有文章数据 ==========
 onMounted(async () => {
   await loadCategories();
@@ -90,7 +106,7 @@ onMounted(async () => {
       form.title = post.title;
       form.content = post.content;
       form.summary = post.summary || "";
-      form.categoryId = null;
+      form.categoryId = post.categoryId || null;
     } catch (err) {
       ElMessage.error("加载文章失败");
       router.push("/");
@@ -158,18 +174,33 @@ const previewMode = ref<boolean>(false);
 
       <el-form-item label="分类">
         <div class="category-selector">
-          <el-select
-            v-model="form.categoryId"
-            placeholder="请选择分类"
-            style="width: 300px"
-          >
-            <el-option
+          <div class="category-list">
+            <div
               v-for="category in categories"
               :key="category.id"
-              :label="category.name"
-              :value="category.id"
-            />
-          </el-select>
+              class="category-item"
+              :class="{ active: form.categoryId === category.id }"
+              @click="form.categoryId = category.id"
+            >
+              <span class="category-name">
+                {{ category.name }}
+                <span class="category-count">({{ category.postCount }}篇)</span>
+              </span>
+              <el-button
+                type="danger"
+                size="small"
+                @click.stop="handleDeleteCategory(category.id)"
+                >删除</el-button
+              >
+            </div>
+            <div
+              class="category-item"
+              :class="{ active: form.categoryId === null }"
+              @click="form.categoryId = null"
+            >
+              <span class="category-name">不选分类</span>
+            </div>
+          </div>
           <div class="create-category">
             <el-input
               v-model="newCategoryName"
@@ -234,6 +265,46 @@ const previewMode = ref<boolean>(false);
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.category-item:hover {
+  border-color: #c0c4cc;
+  background: #f5f7fa;
+}
+
+.category-item.active {
+  border-color: #409eff;
+  background: #ecf5ff;
+  color: #409eff;
+}
+
+.category-name {
+  font-size: 14px;
+}
+
+.category-count {
+  font-size: 12px;
+  color: #909399;
+  margin-left: 4px;
 }
 
 .create-category {

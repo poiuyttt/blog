@@ -27,7 +27,6 @@ const performSearch = async (): Promise<void> => {
     const res = await searchPosts(
       keyword.value,
       undefined,
-      undefined,
       currentPage.value,
       pageSize.value,
     );
@@ -97,9 +96,12 @@ onMounted(() => {
 
 <style scoped>
 .search-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  width: 100%;
+  padding: 0;
+}
+
+.search-page h2 {
+  margin-top: 0;
 }
 
 .update-keyword {

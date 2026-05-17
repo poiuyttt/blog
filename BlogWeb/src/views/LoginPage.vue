@@ -3,7 +3,7 @@ import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
 import { useAuthStore } from "../stores/auth";
-import axios from "axios";
+import { login } from "../api/auth";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -37,21 +37,24 @@ const rules: FormRules = {
 };
 
 const handleLogin = async () => {
-  if (!loginForm.username || !loginForm.password) {
+  if (!formRef.value) {
     ElMessage.error("请输入用户名和密码");
     return;
   }
-  try {
-    const res = await axios.post(
-      "https://localhost:7126/api/auth/login",
-      loginForm,
-    );
-    authStore.setAuth(res.data.token, res.data.user);
-    ElMessage.success("登录成功");
-    router.push("/");
-  } catch (err: any) {
-    ElMessage.error(err.response?.data?.message || "登录失败");
-  }
+  await formRef.value.validate(async (valid) => {
+    if (!valid) {
+      ElMessage.error("请填写正确的用户名和密码");
+      return;
+    }
+    try {
+      const res = await login(loginForm);
+      authStore.setAuth(res.data.token, res.data.user);
+      ElMessage.success("登录成功");
+      router.push("/");
+    } catch (err: any) {
+      ElMessage.error(err.response?.data?.message || "登录失败");
+    }
+  });
 };
 </script>
 <template>

@@ -3,7 +3,7 @@ import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
 import { useAuthStore } from "../stores/auth";
-import request from "../utils/request";
+import { register } from "../api/auth";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -73,12 +73,12 @@ const handleRegister = async () => {
       return;
     }
     try {
-      const res = await request.post("/auth/register", {
+      const res = await register({
         username: registerForm.username,
         email: registerForm.email,
         password: registerForm.password,
       });
-      authStore.setToken(res.token);
+      authStore.setAuth(res.data.token, res.data.user);
       ElMessage.success("注册并登录成功！");
       router.push("/");
     } catch (err: any) {
