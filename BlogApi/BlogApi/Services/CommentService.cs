@@ -21,7 +21,7 @@ namespace BlogApi.Services
             if (!postExists)
             {
                 _logger.LogWarning($"获取评论失败：文章 {postId} 不存在");
-                throw new InvalidOperationException("Post not found");
+                return Enumerable.Empty<Comment>();
             }
 
             return await _context
@@ -30,12 +30,13 @@ namespace BlogApi.Services
                 .ToListAsync();
         }
 
-        public async Task<Comment> CreateAsync(int postId, string content, string author)
+        public async Task<Comment?> CreateAsync(int postId, string content, string author)
         {
             var postExists = await _context.Posts.AnyAsync(p => p.Id == postId);
             if (!postExists)
             {
-                throw new InvalidOperationException("Post not found");
+                _logger.LogWarning($"创建评论失败：文章 {postId} 不存在");
+                return null;
             }
 
             var comment = new Comment

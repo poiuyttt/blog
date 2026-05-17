@@ -29,6 +29,8 @@ namespace BlogApi.Services
         /// </summary>
         public async Task<string> SaveFileAsync(IFormFile file)
         {
+            _logger.LogInformation($"开始上传文件：{file.FileName}，大小：{file.Length} 字节");
+
             // 1. 生成唯一的文件名，避免重名覆盖
             // Guid.NewGuid()：生成全局唯一标识符
             // Path.GetExtension(file.FileName)：获取原文件的扩展名（如 .jpg, .png）
@@ -52,7 +54,7 @@ namespace BlogApi.Services
             // CopyToAsync：将上传文件的内容异步复制到文件流中
             await file.CopyToAsync(stream);
 
-            _logger.LogInformation("文件保存成功：{FilePath}", fullPath);
+            _logger.LogInformation($"文件保存成功：{fullPath}");
 
             // 5. 返回文件的相对访问路径
             // 例如：uploads/20260509/abc123.jpg
@@ -72,7 +74,7 @@ namespace BlogApi.Services
 
             if (!File.Exists(fullPath))
             {
-                _logger.LogWarning("文件不存在：{FilePath}", fullPath);
+                _logger.LogWarning($"文件不存在：{fullPath}");
                 return Array.Empty<byte>();
             }
 

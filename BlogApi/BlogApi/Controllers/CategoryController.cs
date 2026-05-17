@@ -23,31 +23,11 @@ public class CategoryController : ControllerBase
         return Ok(ApiResponse<IEnumerable<CategoryDto>>.Ok(categories, "获取分类列表成功"));
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
-    {
-        var category = await _categoryService.GetByIdAsync(id);
-        if (category == null)
-            return NotFound(ApiResponse<CategoryDto>.NotFound("分类不存在"));
-
-        return Ok(ApiResponse<CategoryDto>.Ok(category, "获取分类成功"));
-    }
-
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCategoryDto dto)
     {
         var category = await _categoryService.CreateAsync(dto.Name);
         return Ok(ApiResponse<CategoryDto>.Ok(category, "创建分类成功"));
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CreateCategoryDto dto)
-    {
-        var success = await _categoryService.UpdateAsync(id, dto.Name);
-        if (!success)
-            return NotFound(ApiResponse<CategoryDto>.NotFound("分类不存在"));
-
-        return Ok(ApiResponse<object>.Ok(null, "更新分类成功"));
     }
 
     [HttpDelete("{id}")]

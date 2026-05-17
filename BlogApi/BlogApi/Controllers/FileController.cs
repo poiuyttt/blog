@@ -9,12 +9,10 @@ namespace BlogApi.Controllers
     public class FileController : ControllerBase
     {
         private IFileService _fileService;
-        private ILogger<FileController> _logger;
 
-        public FileController(IFileService fileService, ILogger<FileController> logger)
+        public FileController(IFileService fileService)
         {
             _fileService = fileService;
-            _logger = logger;
         }
 
         /// <summary>
@@ -46,17 +44,13 @@ namespace BlogApi.Controllers
                 return BadRequest(new { Message = $"不支持的文件类型：{extension}，仅支持 {string.Join(", ", allowedExtensions)}" });
             }
 
-            _logger.LogInformation("开始上传文件：{FileName}，大小：{Size} 字节", file.FileName, file.Length);
-
             // 调用服务保存文件
             string relativePath = await _fileService.SaveFileAsync(file);
 
             // 构建完整的文件访问 URL
-            // $"{Request.Scheme}://{Request.Host}"：获取当前请求的协议和主机名
+            // $\"{Request.Scheme}://{Request.Host}\"：获取当前请求的协议和主机名
             // 例如：https://localhost:5001
             string fileUrl = $"{Request.Scheme}://{Request.Host}/{relativePath}";
-
-            _logger.LogInformation("文件上传成功，访问地址：{FileUrl}", fileUrl);
 
             // CreatedAtAction：返回 201，并在响应中附带文件 URL
             return Ok(new

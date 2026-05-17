@@ -10,7 +10,7 @@ namespace BlogApi.Services
 
         Task<IEnumerable<Comment>> GetByPostIdAsync(int postId);
 
-        Task<Comment> CreateAsync(int postId, string content, string author);
+        Task<Comment?> CreateAsync(int postId, string content, string author);
 
         Task<bool> DeleteAsync(int id);
     }

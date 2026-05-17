@@ -27,17 +27,6 @@ public class CategoryService : ICategoryService
             })
             .ToListAsync();
 
-    public async Task<CategoryDto?> GetByIdAsync(int id) =>
-        await _context
-            .Categories.Where(c => c.Id == id)
-            .Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                PostCount = c.Posts.Count,
-            })
-            .FirstOrDefaultAsync();
-
     public async Task<CategoryDto> CreateAsync(string name)
     {
         var category = new Category { Name = name };
@@ -51,22 +40,6 @@ public class CategoryService : ICategoryService
             Name = category.Name,
             PostCount = 0,
         };
-    }
-
-    public async Task<bool> UpdateAsync(int id, string name)
-    {
-        var category = await _context.Categories.FindAsync(id);
-        if (category == null)
-        {
-            _logger.LogWarning($"分类Id:{id}不存在");
-            return false;
-        }
-
-        category.Name = name;
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation($"更新分类Id:{id}成功");
-        return true;
     }
 
     public async Task<bool> DeleteAsync(int id)

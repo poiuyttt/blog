@@ -11,18 +11,15 @@ namespace BlogApi.Controllers;
 public class PostController : ControllerBase
 {
     private IPostService _postService;
-    private ILogger<PostController> _logger;
 
-    public PostController(IPostService postService, ILogger<PostController> logger)
+    public PostController(IPostService postService)
     {
         _postService = postService;
-        _logger = logger;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        _logger.LogInformation("获取所有文章");
         var posts = await _postService.GetAllAsync();
         return Ok(ApiResponse<IEnumerable<PostListDto>>.Ok(posts, "获取文章列表成功"));
     }
@@ -43,7 +40,6 @@ public class PostController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
     {
-        _logger.LogInformation($"创建文章:{createPostDto.Title}");
         var post = await _postService.CreateAsync(
             createPostDto.Title,
             createPostDto.Content,
@@ -62,7 +58,6 @@ public class PostController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Update(int id, [FromBody] CreatePostDto updatePostDto)
     {
-        _logger.LogInformation($"更新文章:{id}");
         var success = await _postService.UpdateAsync(
             id,
             updatePostDto.Title,
@@ -81,7 +76,6 @@ public class PostController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
-        _logger.LogInformation($"删除文章:{id}");
         var success = await _postService.DeleteAsync(id);
         if (!success)
             return NotFound(ApiResponse<object>.NotFound($"文章Id:{id}不存在"));
@@ -118,7 +112,6 @@ public class PostController : ControllerBase
         [FromQuery] int pageSize = 10
     )
     {
-        _logger.LogInformation($"搜索文章，关键词:{keyword}");
         var (data, totalCount) = await _postService.SearchAsync(keyword, categoryId, page, pageSize);
         return Ok(
             ApiResponse<object>.Ok(

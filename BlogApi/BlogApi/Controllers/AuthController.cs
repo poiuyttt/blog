@@ -14,17 +14,14 @@ namespace BlogApi.Controllers
     public class AuthController : ControllerBase
     {
         private IUserService _userService;
-        private ILogger<AuthController> _logger;
         private JwtSettings _jwtSettings;
 
         public AuthController(
             IUserService userService,
-            ILogger<AuthController> logger,
             JwtSettings jwtSettings
         )
         {
             _userService = userService;
-            _logger = logger;
             _jwtSettings = jwtSettings;
         }
 
@@ -61,7 +58,6 @@ namespace BlogApi.Controllers
             if (user == null)
                 return BadRequest(ApiResponse<object>.BadRequest("用户名或邮箱已被注册"));
 
-            _logger.LogInformation($"新用户注册：{user.Username}");
             return Ok(
                 new
                 {
@@ -84,7 +80,6 @@ namespace BlogApi.Controllers
                 return Unauthorized(new { Message = "用户名或密码错误" });
 
             var token = GenerateJwtToken(user);
-            _logger.LogInformation($"用户登录：{user.Username}");
 
             return Ok(
                 new

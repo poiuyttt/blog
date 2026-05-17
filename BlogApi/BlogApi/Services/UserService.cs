@@ -70,7 +70,7 @@ namespace BlogApi.Services
             // 验证密码
             if (!VerifyPassword(password, user.PasswordHash))
             {
-                _logger.LogWarning("登录失败：密码错误（用户 {Username}）", username);
+                _logger.LogWarning($"登录失败：密码错误（用户 {username}）");
                 return null;
             }
 

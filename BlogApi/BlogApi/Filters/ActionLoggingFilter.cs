@@ -61,20 +61,13 @@ namespace BlogApi.Filters
             {
                 _logger.LogError(
                     context.Exception,
-                    "Action[{ActionName}]参数 [{Arguments}]执行失败，耗时 {Elapsed} ms，错误{Message}",
-                    actionName,
-                    arguments,
-                    elapsedMs,
-                    context.Exception.Message
+                    $"Action[{actionName}]参数 [{arguments}]执行失败，耗时 {elapsedMs} ms，错误{context.Exception.Message}"
                 );
             }
             else
             {
                 _logger.LogInformation(
-                    "Action [{ActionName}] 参数 [{Arguments}]执行成功，耗时 {Elapsed} ms",
-                    actionName,
-                    arguments,
-                    elapsedMs
+                    $"Action [{actionName}] 参数 [{arguments}]执行成功，耗时 {elapsedMs} ms"
                 );
             }
         }

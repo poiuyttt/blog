@@ -11,12 +11,10 @@ namespace BlogApi.Controllers
     public class CommentController : ControllerBase
     {
         private ICommentService _service;
-        private ILogger<CommentController> _logger;
 
-        public CommentController(ICommentService service, ILogger<CommentController> logger)
+        public CommentController(ICommentService service)
         {
             _service = service;
-            _logger = logger;
         }
 
         /// <summary>
@@ -25,16 +23,8 @@ namespace BlogApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetByPostId([FromQuery] int postId)
         {
-            try
-            {
-                var comments = await _service.GetByPostIdAsync(postId);
-                return Ok(ApiResponse<object>.Ok(comments, "获取评论成功"));
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogWarning(ex, "获取评论失败，目标文章不存在");
-                return BadRequest(ApiResponse<object>.BadRequest($"文章{postId}不存在"));
-            }
+            var comments = await _service.GetByPostIdAsync(postId);
+            return Ok(ApiResponse<object>.Ok(comments, "获取评论成功"));
         }
 
         /// <summary>
@@ -44,20 +34,15 @@ namespace BlogApi.Controllers
         [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateCommentDto dto)
         {
-            try
-            {
-                var comment = await _service.CreateAsync(dto.PostId, dto.Comment, dto.Author);
-                return CreatedAtAction(
-                    nameof(GetByPostId),
-                    new { postId = dto.PostId },
-                    ApiResponse<object>.Ok(comment, "评论创建成功")
-                );
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogWarning(ex, "创建评论失败，目标文章不存在");
-                return BadRequest(ApiResponse<object>.BadRequest(ex.Message));
-            }
+            var comment = await _service.CreateAsync(dto.PostId, dto.Comment, dto.Author);
+            if (comment == null)
+                return BadRequest(ApiResponse<object>.BadRequest($"文章{dto.PostId}不存在"));
+
+            return CreatedAtAction(
+                nameof(GetByPostId),
+                new { postId = dto.PostId },
+                ApiResponse<object>.Ok(comment, "评论创建成功")
+            );
         }
 
         /// <summary>
