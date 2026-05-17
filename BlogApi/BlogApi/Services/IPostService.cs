@@ -1,4 +1,4 @@
-﻿using BlogApi.Models;
+using BlogApi.Models;
 using BlogApi.Models.Dtos;
 
 namespace BlogApi.Services;
@@ -13,13 +13,15 @@ public interface IPostService
 
     Task<Post?> GetByIdAsync(int id);
 
-    Task<Post> CreateAsync(string title, string content, string? summary, string author);
+    Task<Post> CreateAsync(string title, string content, string? summary, string author, int? categoryId = null);
 
-    Task<bool> UpdateAsync(int id, string title, string content, string? summary);
+    Task<bool> UpdateAsync(int id, string title, string content, string? summary, int? categoryId = null);
 
     Task<bool> DeleteAsync(int id);
 
     Task<(IEnumerable<PostListDto> Data, int TotalCount)> GetPagedAsync(int page, int pageSize);
 
-    Task<(IEnumerable<PostListDto> Data, int TotalCount)> SearchAsync(string keyword, int page, int pageSize);
+    Task<(IEnumerable<PostListDto> Data, int TotalCount)> SearchAsync(string keyword, int? categoryId, int page, int pageSize);
+
+    Task<(IEnumerable<PostListDto> Data, int TotalCount)> GetByCategoryAsync(int categoryId, int page, int pageSize);
 }

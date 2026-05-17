@@ -65,6 +65,7 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddSingleton<IFileService, FileService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddSingleton<GlobalExceptionFilter>();
 builder.Services.AddSingleton<ActionLoggingFilter>();

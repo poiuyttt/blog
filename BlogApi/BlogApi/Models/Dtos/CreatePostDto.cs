@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlogApi.Models.Dtos;
 
@@ -30,5 +30,7 @@ public class CreatePostDto
     /// 文章摘要
     /// </summary>
     [StringLength(200, ErrorMessage = "摘要长度必须在200个字符以内")]
-    public string? Summary { get; set; } // string? 表示此字段可选
+    public string? Summary { get; set; }
+
+    public int? CategoryId { get; set; }
 }

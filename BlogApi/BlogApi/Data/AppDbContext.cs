@@ -1,4 +1,4 @@
-﻿using BlogApi.Models;
+using BlogApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogApi.Data
@@ -20,6 +20,7 @@ namespace BlogApi.Data
         public DbSet<Post> Posts => Set<Post>();
         public DbSet<Comment> Comments => Set<Comment>();
         public DbSet<User> Users => Set<User>();
+        public DbSet<Category> Categories => Set<Category>();
 
         /// <summary>
         /// 配置实体关系（可选，如果已经用特性配置则不是必须）
@@ -28,10 +29,10 @@ namespace BlogApi.Data
         {
             // 配置 Post 和 Comment 之间的一对多关系
             modelBuilder.Entity<Post>()
-                .HasMany(p => p.Comments) // 一篇文章有多个评论
-                .WithOne(c => c.Post)  // 一个评论属于一篇文章
-                .HasForeignKey(c => c.PostId)// 外键是 Comment.PostId
-                .OnDelete(DeleteBehavior.Cascade); // 删除文章时级联删除评论
+                .HasMany(p => p.Comments)
+                .WithOne(c => c.Post)
+                .HasForeignKey(c => c.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
 

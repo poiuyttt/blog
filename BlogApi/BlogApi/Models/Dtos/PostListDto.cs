@@ -1,4 +1,4 @@
-﻿namespace BlogApi.Models.Dtos
+namespace BlogApi.Models.Dtos
 {
     public class PostListDto
     {
@@ -31,5 +31,7 @@
         /// 评论数（通过关联查询统计）
         /// </summary>
         public int CommentCount { get; set; }
+
+        public string? CategoryName { get; set; }
     }
 }

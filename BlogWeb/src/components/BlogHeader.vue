@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
 import { useAuthStore } from "../stores/auth";
+import { useSearchStore } from "../stores/search";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const searchStore = useSearchStore();
+const searchKeyword = ref<string>("");
 
 function isLoggedIn(): boolean {
   return !!authStore.token;
@@ -12,6 +17,16 @@ function isLoggedIn(): boolean {
 function handleLogout() {
   authStore.clearAuth();
   router.push("/");
+}
+
+function goToSearch(): void {
+  if (!searchKeyword.value.trim()) {
+    ElMessage.warning("请输入搜索关键字");
+    return;
+  }
+  searchStore.setKeyword(searchKeyword.value);
+  searchStore.setPage(1);
+  router.push("/search");
 }
 </script>
 
@@ -22,6 +37,21 @@ function handleLogout() {
       <div class="nav-links">
         <router-link to="/">首页</router-link>
         <router-link to="/about">关于</router-link>
+      </div>
+      <div class="search-box">
+        <el-input
+          v-model="searchKeyword"
+          placeholder="搜索文章..."
+          clearable
+          size="small"
+          @keyup.enter="goToSearch"
+        >
+          <template #append>
+            <el-button @click="goToSearch" size="small">搜索</el-button>
+          </template>
+        </el-input>
+      </div>
+      <div class="nav-links">
         <router-link v-if="!authStore.isLoggedIn" to="/login">登录</router-link>
         <router-link v-if="!authStore.isLoggedIn" to="/register"
           >注册</router-link
@@ -44,18 +74,20 @@ function handleLogout() {
   padding: 0 20px;
 }
 .nav {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 60px;
+  gap: 20px;
 }
 .logo {
   color: white;
   font-size: 20px;
   font-weight: bold;
   text-decoration: none;
+  white-space: nowrap;
 }
 .nav-links {
   display: flex;
@@ -69,5 +101,10 @@ function handleLogout() {
 }
 .nav-links a:hover {
   opacity: 1;
+}
+.search-box {
+  flex: 1;
+  max-width: 400px;
+  min-width: 200px;
 }
 </style>

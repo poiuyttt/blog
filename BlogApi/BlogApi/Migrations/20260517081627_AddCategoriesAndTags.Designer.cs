@@ -4,6 +4,7 @@ using BlogApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlogApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260517081627_AddCategoriesAndTags")]
+    partial class AddCategoriesAndTags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,9 +93,6 @@ namespace BlogApi.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -117,11 +117,60 @@ namespace BlogApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("BlogApi.Models.PostCategory", b =>
+                {
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PostId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("PostCategories");
+                });
+
+            modelBuilder.Entity("BlogApi.Models.PostTag", b =>
+                {
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PostId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("PostTags");
+                });
+
+            modelBuilder.Entity("BlogApi.Models.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("BlogApi.Models.User", b =>
@@ -175,27 +224,68 @@ namespace BlogApi.Migrations
 
             modelBuilder.Entity("BlogApi.Models.Post", b =>
                 {
-                    b.HasOne("BlogApi.Models.Category", "Category")
-                        .WithMany("Posts")
-                        .HasForeignKey("CategoryId");
-
                     b.HasOne("BlogApi.Models.User", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId");
 
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BlogApi.Models.PostCategory", b =>
+                {
+                    b.HasOne("BlogApi.Models.Category", "Category")
+                        .WithMany("PostCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BlogApi.Models.Post", "Post")
+                        .WithMany("PostCategories")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Category");
 
-                    b.Navigation("User");
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("BlogApi.Models.PostTag", b =>
+                {
+                    b.HasOne("BlogApi.Models.Post", "Post")
+                        .WithMany("PostTags")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BlogApi.Models.Tag", "Tag")
+                        .WithMany("PostTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("BlogApi.Models.Category", b =>
                 {
-                    b.Navigation("Posts");
+                    b.Navigation("PostCategories");
                 });
 
             modelBuilder.Entity("BlogApi.Models.Post", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("PostCategories");
+
+                    b.Navigation("PostTags");
+                });
+
+            modelBuilder.Entity("BlogApi.Models.Tag", b =>
+                {
+                    b.Navigation("PostTags");
                 });
 
             modelBuilder.Entity("BlogApi.Models.User", b =>

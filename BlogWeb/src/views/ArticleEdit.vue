@@ -2,13 +2,19 @@
 import { ref, reactive, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage, type FormInstance, type FormRules } from "element-plus";
-import { createPost, updatePost, getPostById } from "../api/posts";
+import {
+  createPost,
+  updatePost,
+  getPostById,
+  getCategories,
+  createCategory,
+  type Category,
+} from "../api/posts";
 
 const route = useRoute();
 const router = useRouter();
 
 // ========== 判断编辑模式还是新建模式 ==========
-// 如果路由中有 id 参数，就是编辑模式；否则是新建模式
 const postId = route.params.id ? Number(route.params.id) : null;
 const isEditMode = computed<boolean>(() => postId !== null);
 
@@ -20,7 +26,12 @@ const form = reactive({
   title: "",
   content: "",
   summary: "",
+  categoryId: null as number | null,
 });
+
+// ========== 分类数据 ==========
+const categories = ref<Category[]>([]);
+const newCategoryName = ref("");
 
 // ========== 表单验证规则 ==========
 const rules: FormRules = {
@@ -39,8 +50,39 @@ const rules: FormRules = {
   ],
 };
 
+// ========== 加载分类 ==========
+const loadCategories = async () => {
+  try {
+    const res = await getCategories();
+    categories.value = res.data;
+  } catch (error) {
+    console.error("获取分类失败:", error);
+  }
+};
+
+// ========== 创建分类 ==========
+const handleCreateCategory = async () => {
+  if (!newCategoryName.value.trim()) {
+    ElMessage.warning("请输入分类名称");
+    return;
+  }
+
+  try {
+    await createCategory({
+      name: newCategoryName.value,
+    });
+    ElMessage.success("分类创建成功");
+    newCategoryName.value = "";
+    await loadCategories();
+  } catch (error) {
+    ElMessage.error("创建分类失败");
+  }
+};
+
 // ========== 编辑模式：加载已有文章数据 ==========
 onMounted(async () => {
+  await loadCategories();
+
   if (postId) {
     try {
       const res = await getPostById(postId);
@@ -48,6 +90,7 @@ onMounted(async () => {
       form.title = post.title;
       form.content = post.content;
       form.summary = post.summary || "";
+      form.categoryId = null;
     } catch (err) {
       ElMessage.error("加载文章失败");
       router.push("/");
@@ -72,6 +115,7 @@ const handleSubmit = async () => {
           title: form.title,
           content: form.content,
           summary: form.summary,
+          categoryId: form.categoryId || undefined,
         });
         ElMessage.success("文章已更新");
       } else {
@@ -80,6 +124,7 @@ const handleSubmit = async () => {
           title: form.title,
           content: form.content,
           summary: form.summary,
+          categoryId: form.categoryId || undefined,
         });
         ElMessage.success("文章发布成功");
         // 新建成功后跳转到新文章详情页
@@ -109,6 +154,33 @@ const previewMode = ref<boolean>(false);
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
       <el-form-item label="标题" prop="title">
         <el-input v-model="form.title" placeholder="请输入文章标题" />
+      </el-form-item>
+
+      <el-form-item label="分类">
+        <div class="category-selector">
+          <el-select
+            v-model="form.categoryId"
+            placeholder="请选择分类"
+            style="width: 300px"
+          >
+            <el-option
+              v-for="category in categories"
+              :key="category.id"
+              :label="category.name"
+              :value="category.id"
+            />
+          </el-select>
+          <div class="create-category">
+            <el-input
+              v-model="newCategoryName"
+              placeholder="新分类名称"
+              style="width: 200px; margin-right: 8px"
+            />
+            <el-button type="primary" size="small" @click="handleCreateCategory"
+              >创建分类</el-button
+            >
+          </div>
+        </div>
       </el-form-item>
 
       <el-form-item label="摘要" prop="summary">
@@ -141,7 +213,6 @@ const previewMode = ref<boolean>(false);
       </el-form-item>
 
       <el-form-item>
-        <!-- 按钮文字根据模式动态显示 -->
         <el-button type="primary" @click="handleSubmit">
           {{ isEditMode ? "更新" : "发布" }}
         </el-button>
@@ -149,18 +220,28 @@ const previewMode = ref<boolean>(false);
       </el-form-item>
     </el-form>
   </div>
-  <div class="edit-page">
-    <el-divider />
-    <h3>测试文件上传</h3>
-    <FileUpload />
-  </div>
 </template>
+
 <style scoped>
 .edit-page {
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
 }
+
+.category-selector {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.create-category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .markdown-preview {
   border: 1px solid #ddd;
   padding: 15px;

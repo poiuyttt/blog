@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { ElMessage } from "element-plus";
+import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import {
   getComments,
@@ -15,6 +16,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const authStore = useAuthStore();
+const router = useRouter();
 
 const comments = ref<Comment[]>([]);
 const loading = ref<boolean>(false);
@@ -44,6 +46,13 @@ const loadComments = async () => {
 // 提交评论
 const handleSubmit = async () => {
   if (!newComment.value.trim()) return;
+
+  if (!authStore.isLoggedIn) {
+    ElMessage.warning("请先登录后再发表评论");
+    router.push("/login");
+    return;
+  }
+
   try {
     await createComment(
       props.postId,

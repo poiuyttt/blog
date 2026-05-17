@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useSearchStore } from "../stores/search";
 import PostList from "../components/PostList.vue";
-import { getPagedPosts, type Post } from "../api/posts";
+import { getPagedPosts, searchPosts, getCategories, type Post, type Category } from "../api/posts";
 
 const posts = ref<Post[]>([]);
 const loading = ref<boolean>(false);
@@ -12,35 +11,54 @@ const pageSize = ref<number>(5);
 const totalCount = ref<number>(0);
 const route = useRoute();
 const router = useRouter();
-const searchStore = useSearchStore();
 const isShow = ref(false);
-const searchKeyword = ref<string>("");
 
-// 加载中状态
+const categories = ref<Category[]>([]);
+const selectedCategoryId = ref<number | null>(null);
 
-function goToSearch(): void {
-  if (!searchKeyword.value.trim()) {
-    alert("请输入搜索关键字");
-    return;
+const loadCategories = async () => {
+  try {
+    const res = await getCategories();
+    categories.value = res.data;
+  } catch (error) {
+    console.error("获取分类失败:", error);
   }
-  searchStore.setKeyword(searchKeyword.value);
-  searchStore.setPage(1);
-  router.push("/search");
-}
+};
 
-// onMounted：页面加载后从后端获取文章列表
 const loadPosts = async (page: number = 1) => {
   currentPage.value = page;
   loading.value = true;
   try {
-    const res = await getPagedPosts(currentPage.value, pageSize.value);
-    posts.value = res.data.data;
-    totalCount.value = res.data.totalCount;
+    if (selectedCategoryId.value) {
+      const res = await searchPosts(
+        "",
+        selectedCategoryId.value || undefined,
+        currentPage.value,
+        pageSize.value
+      );
+      posts.value = res.data.data;
+      totalCount.value = res.data.totalCount;
+    } else {
+      const res = await getPagedPosts(currentPage.value, pageSize.value);
+      posts.value = res.data.data;
+      totalCount.value = res.data.totalCount;
+    }
   } catch (error) {
     console.error("获取文章列表失败：", error);
   } finally {
     loading.value = false;
   }
+};
+
+const handleCategoryClick = (categoryId: number | null) => {
+  selectedCategoryId.value = categoryId;
+  currentPage.value = 1;
+  loadPosts();
+};
+
+const clearFilters = () => {
+  selectedCategoryId.value = null;
+  loadPosts();
 };
 
 function handleScroll(): void {
@@ -52,6 +70,7 @@ function scrollToTop(): void {
 }
 
 onMounted(() => {
+  loadCategories();
   loadPosts();
 });
 
@@ -73,56 +92,126 @@ watch(
   },
 );
 </script>
+
 <template>
   <div class="home">
-    <div class="search-box">
-      <input
-        v-model="searchKeyword"
-        placeholder="搜索文章..."
-        @keyup.enter="goToSearch"
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <h3>分类</h3>
+        <div class="category-list">
+          <div
+            class="category-item"
+            :class="{ active: selectedCategoryId === null }"
+            @click="handleCategoryClick(null)"
+          >
+            全部
+          </div>
+          <div
+            v-for="category in categories"
+            :key="category.id"
+            class="category-item"
+            :class="{ active: selectedCategoryId === category.id }"
+            @click="handleCategoryClick(category.id)"
+          >
+            {{ category.name }}
+            <span class="count">({{ category.postCount }})</span>
+          </div>
+        </div>
+      </div>
+
+      <el-button
+        v-if="selectedCategoryId"
+        type="primary"
+        plain
+        size="small"
+        @click="clearFilters"
+        style="margin-top: 10px;"
+      >
+        清除筛选
+      </el-button>
+    </div>
+
+    <div class="main-content">
+      <h2 class="section-title">最新文章</h2>
+      <div v-if="loading">
+        <el-skeleton :rows="5" animated />
+      </div>
+      <PostList
+        v-else
+        :posts="posts"
+        :loading="loading"
+        :currentPage="currentPage"
+        :totalCount="totalCount"
+        :pageSize="pageSize"
+        @page-change="loadPosts"
       />
-      <button @click="goToSearch">搜索</button>
+    </div>
+
+    <div v-if="isShow" class="back-to-top">
+      <el-button type="primary" @click="scrollToTop">↑ 返回顶部</el-button>
     </div>
   </div>
-
-  <h2 class="section-title">最新文章</h2>
-  <div v-if="loading">
-    <el-skeleton :rows="5" animated />
-  </div>
-  <PostList
-    v-else
-    :posts="posts"
-    :loading="loading"
-    :currentPage="currentPage"
-    :totalCount="totalCount"
-    :pageSize="pageSize"
-    @page-change="loadPosts"
-  />
-  <div v-if="isShow" class="back-to-top">
-    <el-button type="primary" @click="scrollToTop">↑ 返回顶部</el-button>
-  </div>
 </template>
+
 <style scoped>
-button {
-  padding: 8px 20px;
-  font-size: 16px;
-  cursor: pointer;
+.home {
+  display: flex;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.search-box {
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.sidebar-section {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
   margin-bottom: 20px;
 }
 
-.search-box input {
-  padding: 8px;
-  width: 250px;
-  margin-right: 10px;
+.sidebar-section h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
 }
 
-.home {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.category-item {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.category-item:hover {
+  background: #e0e0e0;
+}
+
+.category-item.active {
+  background: #409eff;
+  color: white;
+}
+
+.category-item .count {
+  color: #999;
+  font-size: 12px;
+}
+
+.category-item.active .count {
+  color: #fff;
+}
+
+.main-content {
+  flex: 1;
 }
 
 .section-title {

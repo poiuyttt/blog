@@ -42,16 +42,19 @@ public class Post
     /// </summary>
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
-    public int? UserId { get; set; } // 外键，关联到 User 实体
+    public int? UserId { get; set; }
 
     [ForeignKey("UserId")]
     public virtual User? User { get; set; }
 
+    public int? CategoryId { get; set; }
 
+    [ForeignKey("CategoryId")]
+    public virtual Category? Category { get; set; }
 
-
-
-
-
-
+    /// <summary>
+    /// 分类名称（不映射到数据库）
+    /// </summary>
+    [NotMapped]
+    public string? CategoryName => Category != null ? Category.Name : null;
 }

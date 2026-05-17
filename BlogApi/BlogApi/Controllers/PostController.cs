@@ -48,7 +48,8 @@ public class PostController : ControllerBase
             createPostDto.Title,
             createPostDto.Content,
             createPostDto.Summary,
-            "当前用户"
+            "当前用户",
+            createPostDto.CategoryId
         );
         return CreatedAtAction(
             nameof(GetById),
@@ -66,7 +67,8 @@ public class PostController : ControllerBase
             id,
             updatePostDto.Title,
             updatePostDto.Content,
-            updatePostDto.Summary
+            updatePostDto.Summary,
+            updatePostDto.CategoryId
         );
         if (!success)
             return NotFound(ApiResponse<object>.NotFound($"文章Id:{id}不存在"));
@@ -111,12 +113,13 @@ public class PostController : ControllerBase
     [HttpGet("search")]
     public async Task<IActionResult> Search(
         [FromQuery] string keyword = "",
+        [FromQuery] int? categoryId = null,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10
     )
     {
         _logger.LogInformation($"搜索文章，关键词:{keyword}");
-        var (data, totalCount) = await _postService.SearchAsync(keyword, page, pageSize);
+        var (data, totalCount) = await _postService.SearchAsync(keyword, categoryId, page, pageSize);
         return Ok(
             ApiResponse<object>.Ok(
                 new
@@ -130,5 +133,28 @@ public class PostController : ControllerBase
                 "搜索成功"
             )
         );
+    }
+
+    [HttpGet("category/{categoryId}")]
+    public async Task<IActionResult> GetByCategory(
+        int categoryId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        var (data, totalCount) = await _postService.GetByCategoryAsync(categoryId, page, pageSize);
+        return Ok(
+                ApiResponse<object>.Ok(
+                    new
+                    {
+                        Data = data,
+                        TotalCount = totalCount,
+                        Page = page,
+                        PageSize = pageSize,
+                        TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                    },
+                    "获取分类文章成功"
+                )
+            );
     }
 }

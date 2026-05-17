@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { computed } from "vue";
+import { formatDateTime } from "../utils/format";
 
 interface Post {
   id: number;
@@ -8,6 +9,7 @@ interface Post {
   author: string;
   createdAt: string;
   commentCount: number;
+  categoryName?: string;
 }
 
 interface Props {
@@ -29,6 +31,10 @@ const emit = defineEmits<{
 const totalPages = computed<number>(() =>
   Math.ceil(props.totalCount / props.pageSize),
 );
+
+const formatPostDate = (dateStr: string): string => {
+  return formatDateTime(dateStr);
+};
 </script>
 
 <template>
@@ -45,9 +51,14 @@ const totalPages = computed<number>(() =>
           }}</router-link>
         </h3>
         <p class="post-meta">
-          {{ post.author }} · {{ post.createdAt }} ·
+          {{ post.author }} · {{ formatPostDate(post.createdAt) }} ·
           {{ post.commentCount }} 条评论
         </p>
+        <div v-if="post.categoryName" class="post-categories">
+          <el-tag type="success" size="small">
+            {{ post.categoryName }}
+          </el-tag>
+        </div>
         <p class="post-summary">{{ post.summary || "暂无摘要" }}</p>
       </div>
     </div>
@@ -93,6 +104,10 @@ const totalPages = computed<number>(() =>
 .post-meta {
   color: #999;
   font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.post-categories {
   margin-bottom: 10px;
 }
 

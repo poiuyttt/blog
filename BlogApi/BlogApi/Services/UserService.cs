@@ -44,7 +44,7 @@ namespace BlogApi.Services
                 Username = username,
                 Email = email,
                 PasswordHash = HashPassword(password),
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
             };
             // AddAsync：将实体添加到跟踪图，标记为“待插入”
             await _context.Users.AddAsync(user);

@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import BlogHeader from "./components/BlogHeader.vue";
 import BlogFooter from "./components/BlogFooter.vue";
-import NavBar from "./components/NavBar.vue";
 </script>
 
 <template>
   <BlogHeader />
-  <NavBar />
   <main>
     <RouterView />
   </main>

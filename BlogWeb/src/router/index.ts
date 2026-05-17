@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { ElMessage } from "element-plus";
 import HomePage from "../views/HomePage.vue";
 import AboutPage from "../views/AboutPage.vue";
 import SearchPage from "../views/SearchPage.vue";
@@ -66,6 +67,7 @@ router.beforeEach((to, from, next) => {
   const isLoggedIn = !!localStorage.getItem("token");
 
   if (requiresAuth && !isLoggedIn) {
+    ElMessage.warning("请先登录后再访问该页面");
     next("/login");
   } else {
     next();
