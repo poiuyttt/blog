@@ -2,6 +2,10 @@
 using BlogApi.Models.Dtos;
 using BlogApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace BlogApi.Controllers
 {
@@ -11,11 +15,40 @@ namespace BlogApi.Controllers
     {
         private IUserService _userService;
         private ILogger<AuthController> _logger;
+        private JwtSettings _jwtSettings;
 
-        public AuthController(IUserService userService, ILogger<AuthController> logger)
+        public AuthController(
+            IUserService userService,
+            ILogger<AuthController> logger,
+            JwtSettings jwtSettings
+        )
         {
             _userService = userService;
             _logger = logger;
+            _jwtSettings = jwtSettings;
+        }
+
+        private string GenerateJwtToken(User user)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(_jwtSettings.ExpireMinutes),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         /// <summary>
@@ -50,10 +83,8 @@ namespace BlogApi.Controllers
             if (user == null)
                 return Unauthorized(new { Message = "用户名或密码错误" });
 
-            // 生成一个简单 Token（后续引入 JWT 后替换）
-            string token = Convert.ToBase64String(
-                System.Text.Encoding.UTF8.GetBytes($"{user.Username}:{DateTime.Now.Ticks}")
-            );
+            var token = GenerateJwtToken(user);
+            _logger.LogInformation($"用户登录：{user.Username}");
 
             return Ok(
                 new

@@ -1,6 +1,7 @@
 ﻿using BlogApi.Models;
 using BlogApi.Models.Dtos;
 using BlogApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogApi.Controllers
@@ -40,6 +41,7 @@ namespace BlogApi.Controllers
         /// POST api/comment — 创建评论
         /// </summary>
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateCommentDto dto)
         {
             try
@@ -62,6 +64,7 @@ namespace BlogApi.Controllers
         /// DELETE api/comment/5 — 删除评论
         /// </summary>
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _service.DeleteAsync(id);

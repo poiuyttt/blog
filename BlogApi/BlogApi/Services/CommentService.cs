@@ -38,12 +38,14 @@ namespace BlogApi.Services
                 throw new InvalidOperationException("Post not found");
             }
 
+            var now = DateTime.Now;
+            now = now.AddSeconds(-now.Second).AddMilliseconds(-now.Millisecond);
             var comment = new Comment
             {
                 PostId = postId,
                 Content = content,
                 Author = author,
-                CreatedAt = DateTime.Now,
+                CreatedAt = now,
             };
             await _context.Comments.AddAsync(comment);
 

@@ -40,14 +40,16 @@ public class PostService : IPostService
         string author
     )
     {
+        var now = DateTime.Now;
+        now = now.AddSeconds(-now.Second).AddMilliseconds(-now.Millisecond);
         var post = new Post
         {
             Title = title,
             Content = content,
             Summary = summary,
             Author = author,
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now,
+            CreatedAt = now,
+            UpdatedAt = now,
         };
         _context.Posts.Add(post);
         await _context.SaveChangesAsync();
@@ -68,7 +70,8 @@ public class PostService : IPostService
         post.Title = title;
         post.Content = content;
         post.Summary = summary;
-        post.UpdatedAt = DateTime.Now;
+        var now = DateTime.Now;
+        post.UpdatedAt = now.AddSeconds(-now.Second).AddMilliseconds(-now.Millisecond);
 
         await _context.SaveChangesAsync();
 

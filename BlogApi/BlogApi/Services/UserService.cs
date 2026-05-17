@@ -12,11 +12,17 @@ namespace BlogApi.Services
     {
         private ILogger<UserService> _logger;
         private AppDbContext _context;
+        private JwtSettings _jwtSettings;
 
-        public UserService(ILogger<UserService> logger, AppDbContext context)
+        public UserService(
+            ILogger<UserService> logger,
+            AppDbContext context,
+            JwtSettings jwtSettings
+        )
         {
             _logger = logger;
             _context = context;
+            _jwtSettings = jwtSettings;
         }
 
         public async Task<User?> RegisterAsync(string username, string email, string password)

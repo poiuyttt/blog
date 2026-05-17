@@ -1,6 +1,7 @@
 using BlogApi.Models;
 using BlogApi.Models.Dtos;
 using BlogApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogApi.Controllers;
@@ -39,6 +40,7 @@ public class PostController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
     {
         _logger.LogInformation($"创建文章:{createPostDto.Title}");
@@ -56,6 +58,7 @@ public class PostController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> Update(int id, [FromBody] CreatePostDto updatePostDto)
     {
         _logger.LogInformation($"更新文章:{id}");
@@ -67,12 +70,13 @@ public class PostController : ControllerBase
         );
         if (!success)
             return NotFound(ApiResponse<object>.NotFound($"文章Id:{id}不存在"));
-        
+
         var post = await _postService.GetByIdAsync(id);
         return Ok(ApiResponse<Post>.Ok(post, "文章更新成功"));
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         _logger.LogInformation($"删除文章:{id}");
