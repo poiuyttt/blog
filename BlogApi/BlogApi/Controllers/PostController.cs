@@ -1,4 +1,4 @@
-﻿using BlogApi.Models;
+using BlogApi.Models;
 using BlogApi.Models.Dtos;
 using BlogApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -67,7 +67,9 @@ public class PostController : ControllerBase
         );
         if (!success)
             return NotFound(ApiResponse<object>.NotFound($"文章Id:{id}不存在"));
-        return NoContent();
+        
+        var post = await _postService.GetByIdAsync(id);
+        return Ok(ApiResponse<Post>.Ok(post, "文章更新成功"));
     }
 
     [HttpDelete("{id}")]

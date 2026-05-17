@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlogApi.Models;
@@ -30,6 +30,12 @@ public class Post
     public string Author { get; set; } = "当前用户"; // 暂时固定，后续接入认证
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
+    /// <summary>
+    /// 评论数量（计算属性，不映射到数据库）
+    /// </summary>
+    [NotMapped]
+    public int CommentCount => Comments?.Count ?? 0;
 
     /// <summary>
     /// 导航属性：本文章下的所有评论（一对多）

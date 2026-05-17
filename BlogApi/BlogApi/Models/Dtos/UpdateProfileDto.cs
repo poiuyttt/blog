@@ -10,7 +10,7 @@ namespace BlogApi.Models.Dtos
 
         [Required(ErrorMessage = "邮箱不能为空")]
         [EmailAddress(ErrorMessage = "邮箱格式不正确")]
-        public string EmailAddress { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
 
         [StringLength(200)]
         public string? Bio { get; set; }

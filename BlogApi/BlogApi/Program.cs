@@ -4,6 +4,7 @@ using BlogApi.Middlewares;
 using BlogApi.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,13 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add<GlobalExceptionFilter>();
     options.Filters.Add<ActionLoggingFilter>();
+})
+.AddJsonOptions(options =>
+{
+    // 解决前后端字段名大小写不匹配的问题
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    // 解决循环引用问题
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

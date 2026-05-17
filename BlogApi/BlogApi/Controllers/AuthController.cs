@@ -79,7 +79,7 @@ namespace BlogApi.Controllers
             var user = await _userService.UpdateProfileAsync(
                 userId,
                 dto.Username,
-                dto.EmailAddress,
+                dto.Email,
                 dto.Bio
             );
             if (user == null)
