@@ -1,215 +1,160 @@
-# 全栈学习项目
+# 📝 博客系统（BlogApi + BlogWeb）
 
-基于《完整6周全栈学习计划》的学习代码仓库，涵盖从 C# 基础语法到 ASP.NET Core Web API，再到 Vue3 前端的全栈学习路径。
+基于 ASP.NET Core 8 + Vue 3 的全博客应用，支持文章的 Markdown 编辑与预览、分类管理、评论系统、JWT 用户认证、文件上传等功能。
+
+## 技术栈
+
+### 后端 — BlogApi
+
+| 类别 | 技术 |
+|------|------|
+| 运行时 | .NET 8.0 |
+| ORM | Entity Framework Core 9.0 |
+| 数据库 | SQL Server |
+| 认证 | JWT Bearer（自定义策略授权） |
+| API 文档 | Swagger（Swashbuckle） |
+
+### 前端 — BlogWeb
+
+| 类别 | 技术 |
+|------|------|
+| 框架 | Vue 3.5 + TypeScript 6 |
+| 构建 | Vite 8 |
+| 状态管理 | Pinia 3（持久化插件） |
+| 路由 | Vue Router 4 |
+| UI 库 | Element Plus 2.13 |
+| HTTP | Axios 1.15 |
+| Markdown | @kangc/v-md-editor（GitHub 主题 + 代码高亮 + 行号） |
 
 ## 项目结构
 
 ```
-d:\code\
-├── Csharp/                     # C# 基础 → 进阶（13 个递进式控制台项目）
-│   ├── ConsoleApp1/            # 数据类型、变量、字符串格式化、作用域、类型转换
-│   ├── ConsoleApp2/            # ref/out 参数、params、循环、类与属性
-│   ├── ConsoleApp3/            # 接口、抽象类、继承、多态
-│   ├── ConsoleApp4/            # 委托、事件、IEnumerable 接口
-│   ├── ConsoleApp5/            # 继承与多态深入、属性验证、virtual/override
-│   ├── ConsoleApp6/            # 泛型、异常处理（try/catch/finally）
-│   ├── ConsoleApp7/            # LINQ（Where、Select、OrderBy、查询表达式）
-│   ├── ConsoleApp8/            # 委托、事件、Lambda 表达式、Action<T>
-│   ├── ConsoleApp9/            # 实战：发布/订阅日志系统（事件驱动）
-│   ├── ConsoleApp10/           # async/await、Task、匿名类型、JSON 序列化
-│   ├── ConsoleApp11/           # IConfiguration、appsettings.json、Options 模式
-│   ├── ConsoleApp12/           # 依赖注入（DI）、ServiceCollection、接口编程
-│   └── ConsoleApp13/           # DI + Logging + Configuration + xUnit 单元测试
+├── BlogApi/BlogApi/           # 后端 API
+│   ├── Controllers/           # 5 个 API 控制器
+│   │   ├── AuthController.cs        # 注册、登录、改密、上传头像
+│   │   ├── PostController.cs        # 文章 CRUD、分页、搜索、分类筛选
+│   │   ├── CommentController.cs     # 评论创建、删除
+│   │   ├── CategoryController.cs    # 分类管理
+│   │   └── FileController.cs        # 文件上传/下载/删除
+│   ├── Services/              # 业务逻辑层（5 个 Service）
+│   ├── Models/                # 实体 + DTO
+│   ├── Data/                  # AppDbContext + EF Core 配置
+│   ├── Authorization/         # 自定义授权策略（AdminOrAuthor 等）
+│   ├── Filters/               # 全局异常过滤器 + 请求日志过滤器
+│   ├── Middlewares/           # 请求计时中间件
+│   ├── Program.cs             # 入口、DI 注册、中间件管线
+│   └── Migrations/            # 9 次增量式数据库迁移
 │
-├── BlogApi/                    # ASP.NET Core 8.0 Web API 实战项目（练习版）
-│   └── BlogApi/
-│       ├── Controllers/        # API 控制器
-│       │   └── TodoController.cs      # Todo CRUD（GET/POST/PUT/DELETE）
-│       ├── Models/             # 数据模型
-│       │   ├── TodoItem.cs             # 待办事项实体
-│       │   ├── Dtos/                   # 数据传输对象
-│       │   │   ├── CreateTodoDto.cs    # 创建请求 DTO
-│       │   │   └── TodoDto.cs          # 响应 DTO
-│       │   └── Configurations/         # 配置模型
-│       │       └── PaginationSettings.cs
-│       ├── Services/           # 业务逻辑层
-│       │   ├── ITodoService.cs         # 服务接口
-│       │   └── TodoService.cs          # 服务实现（内存数据存储）
-│       ├── Program.cs          # 应用入口与 DI 配置
-│       ├── appsettings.json    # 应用配置
-│       └── BlogApi.http        # HTTP 请求测试文件
+├── BlogWeb/                   # 前端
+│   └── src/
+│       ├── api/               # Axios API 封装（posts/auth/comments/user）
+│       ├── views/             # 9 个页面
+│       │   ├── HomePage.vue         # 首页（分页文章列表 + 分类筛选）
+│       │   ├── ArticlePage.vue      # 文章详情（Markdown + 目录 + 上下篇）
+│       │   ├── ArticleEdit.vue      # 写文章/编辑（Markdown 编辑器）
+│       │   ├── LoginPage.vue        # 登录
+│       │   ├── RegisterPage.vue     # 注册
+│       │   ├── ProfilePage.vue      # 个人中心（头像、资料、改密）
+│       │   ├── SearchPage.vue       # 搜索
+│       │   ├── ImageGallery.vue     # 图库
+│       │   └── AboutPage.vue        # 关于
+│       ├── components/        # 公共组件
+│       │   ├── BlogHeader.vue       # 导航栏 + 搜索框
+│       │   ├── BlogFooter.vue       # 页脚
+│       │   ├── PostList.vue         # 文章列表（分页组件）
+│       │   ├── CommentList.vue      # 评论列表 + 发表
+│       │   ├── CategorySidebar.vue  # 分类侧边栏
+│       │   ├── BlogCard.vue         # 文章卡片
+│       │   ├── FileUpload.vue       # 文件上传
+│       │   └── ConfirmButton.vue    # 确认按钮
+│       ├── stores/            # Pinia 状态管理
+│       │   ├── auth.ts              # 认证状态（token + 用户信息）
+│       │   └── search.ts            # 搜索状态（持久化）
+│       ├── router/index.ts    # 路由（含导航守卫）
+│       ├── utils/             # 工具函数
+│       │   ├── request.ts           # Axios 实例（拦截器）
+│       │   ├── auth.ts              # JWT 解析 + 角色判断
+│       │   └── format.ts            # 日期格式化
+│       └── types/             # TypeScript 类型声明
 │
-├── TodoAPI/                    # ASP.NET Core 8.0 Web API 实战项目（正式版）
-│   └── TodoAPI/
-│       ├── Controllers/        # API 控制器
-│       │   └── TodoController.cs      # Todo CRUD + 结构化日志
-│       ├── Models/             # 数据模型
-│       │   ├── TodoItem.cs             # 待办事项实体（含 CreatedAt 时间戳）
-│       │   └── Dto/                    # 数据传输对象
-│       │       ├── CreateTodoDto.cs    # 创建请求 DTO
-│       │       └── TodoDto.cs          # 响应 DTO（含 CreatedAt）
-│       ├── Services/           # 业务逻辑层
-│       │   ├── ITodoService.cs         # 服务接口
-│       │   └── TodoService.cs          # 服务实现（内存数据存储 + ILogger）
-│       ├── Program.cs          # 应用入口与 DI 配置
-│       ├── appsettings.json    # 应用配置
-│       └── TodoAPI.http        # HTTP 请求测试文件
-│
-└── BlogWeb/                    # Vue3 前端项目
-    └── src/
-        ├── api/                # API 请求封装
-        │   └── posts.ts               # 文章接口（axios）
-        ├── assets/             # 静态资源
-        ├── components/         # 公共组件
-        │   ├── BlogHeader.vue          # 博客头部
-        │   ├── BlogFooter.vue          # 博客底部（computed 动态年份）
-        │   ├── BlogCard.vue            # 文章卡片（Props 传参）
-        │   ├── NavBar.vue              # 导航栏（RouterLink）
-        │   ├── PostList.vue            # 文章列表（分页 + el-pagination）
-        │   └── ConfirmButton.vue       # 确认按钮（emit 事件）
-        ├── router/             # 路由配置
-        │   └── index.ts               # 路由表 + 导航守卫（token 鉴权）
-        ├── stores/             # Pinia 状态管理
-        │   ├── counter.ts              # 计数器 Store（computed + actions）
-        │   └── search.ts               # 搜索 Store（持久化插件）
-        ├── utils/              # 工具函数
-        │   └── request.ts              # axios 实例（拦截器 + token 注入）
-        ├── views/              # 页面组件
-        │   ├── HomePage.vue            # 首页（文章列表 + 搜索跳转）
-        │   ├── ArticlePage.vue         # 文章详情（Markdown 渲染）
-        │   ├── SearchPage.vue          # 搜索页（Pinia 状态读取）
-        │   ├── LoginPage.vue           # 登录页（Element Plus 表单验证）
-        │   ├── RegisterPage.vue        # 注册页（自定义验证规则）
-        │   └── AboutPage.vue           # 关于页
-        ├── App.vue              # 根组件
-        ├── main.ts              # 应用入口（Pinia + Router + ElementPlus + VMdEditor）
-        └── style.css            # 全局样式
+└── TodoAPI/                   # 另一个练习用 Todo API
 ```
 
-## 技术栈
+## 功能特性
 
-### 后端
+### 已完成
 
-| 类别     | 技术                                     |
-| -------- | ---------------------------------------- |
-| 运行时   | .NET 8.0                                 |
-| Web 框架 | ASP.NET Core 8.0                         |
-| API 文档 | Swagger / OpenAPI（Swashbuckle 6.6.2）   |
-| 序列化   | Newtonsoft.Json                          |
-| 日志     | Microsoft.Extensions.Logging             |
-| 配置     | Microsoft.Extensions.Configuration       |
-| 依赖注入 | Microsoft.Extensions.DependencyInjection |
-| 测试     | xUnit                                    |
-| IDE      | Rider                                    |
+- ✅ 用户注册 / 登录（JWT 认证）
+- ✅ 文章 Markdown 编辑与预览（v-md-editor）
+- ✅ 文章分页列表、分类筛选
+- ✅ 文章搜索（标题/摘要/内容全文检索）
+- ✅ 评论系统（发表/删除）
+- ✅ 分类管理（Admin）
+- ✅ 文件上传（图片）与图库
+- ✅ 个人中心（头像上传、资料编辑、密码修改）
+- ✅ 文章目录导航（TOC）
+- ✅ 上一篇 / 下一篇导航
+- ✅ 角色权限（Admin / User）
+- ✅ 请求日志 + 全局异常处理
+- ✅ 请求计时中间件
+- ✅ CORS 跨域配置
+- ✅ Swagger API 文档
 
-### 前端
+### 开发中 / 待完善
 
-| 类别     | 技术                                    |
-| -------- | --------------------------------------- |
-| 框架     | Vue 3.5                                 |
-| 语言     | TypeScript 6.0                          |
-| 构建工具 | Vite 8.0                                |
-| 路由     | Vue Router 4.6                          |
-| 状态管理 | Pinia 3.0 + pinia-plugin-persistedstate |
-| UI 库    | Element Plus 2.13                       |
-| HTTP     | Axios 1.15                              |
-| Markdown | @kangc/v-md-editor 2.3（GitHub 主题）   |
-| IDE      | VS Code                                 |
-
-## 学习路径
-
-### 第一阶段：C# 基础（ConsoleApp1 ~ ConsoleApp6）
-
-从零开始掌握 C# 核心语法：
-
-- **ConsoleApp1** — 数据类型、变量声明、`var` 类型推断、字符串格式化（拼接/占位符/插值）、作用域、类型转换
-- **ConsoleApp2** — `ref` / `out` / `params` 参数修饰符、`for` / `foreach` / `while` 循环、类与属性、值类型 vs 引用类型
-- **ConsoleApp3** — `interface` 接口、`abstract` 抽象类、继承、多态（里氏替换原则）
-- **ConsoleApp4** — `delegate` 委托、`event` 事件、`IEnumerable` 与集合遍历
-- **ConsoleApp5** — 深入继承与多态、属性 `get`/`set` 访问器与验证逻辑、`virtual`/`override`
-- **ConsoleApp6** — 泛型类 `Box<T>`、`try`/`catch`/`finally` 异常处理
-
-### 第二阶段：C# 进阶（ConsoleApp7 ~ ConsoleApp10）
-
-掌握现代 C# 开发的核心能力：
-
-- **ConsoleApp7** — LINQ 查询（方法语法 + 查询表达式）、`Where`/`Select`/`OrderBy`、匿名类型、延迟执行
-- **ConsoleApp8** — 委托与事件深入、`Action<T>` 泛型委托、Lambda 表达式、多播委托
-- **ConsoleApp9** — **实战**：发布/订阅日志系统，事件驱动架构，控制台 + 文件双订阅者
-- **ConsoleApp10** — `async`/`await` 异步编程、`Task`、文件异步读写、匿名类型、Newtonsoft.Json 序列化
-
-### 第三阶段：企业级开发（ConsoleApp11 ~ ConsoleApp13）
-
-引入 .NET 生态的核心基础设施：
-
-- **ConsoleApp11** — `IConfiguration` 配置系统、`appsettings.json`、`Bind()` 绑定、Options 模式
-- **ConsoleApp12** — 依赖注入（DI）容器、`ServiceCollection`、`AddSingleton`/`AddTransient`、接口编程
-- **ConsoleApp13** — DI + Logging + Configuration 三合一整合、`ILogger<T>` 结构化日志、xUnit 单元测试
-
-### 第四阶段：Web API 实战（BlogApi / TodoAPI）
-
-将前面所有知识整合为完整的后端项目：
-
-- **分层架构**：Controller → Service → Model
-- **RESTful API 设计**：`GET` / `POST` / `PUT` / `DELETE` 完整 CRUD
-- **DTO 模式**：分离入参（`CreateTodoDto`）与出参（`TodoDto`），对外契约隔离
-- **依赖注入**：`ITodoService` 接口注入 Controller
-- **Options 模式**：`PaginationSettings` 强类型配置（BlogApi）
-- **结构化日志**：`ILogger<T>` 记录请求与异常
-- **Swagger 文档**：自动生成 API 文档与在线调试界面
-
-> **BlogApi** 与 **TodoAPI** 的区别：BlogApi 是练习版（含 Options 配置演示），TodoAPI 是正式版（Service 层注入 ILogger、实体含 CreatedAt 时间戳、更完善的日志记录）。
-
-### 第五阶段：Vue3 前端实战（BlogWeb）
-
-从后端走向全栈，构建博客前端应用：
-
-- **项目搭建**：Vite + Vue3 + TypeScript 脚手架
-- **路由系统**：Vue Router 路由表配置、懒加载、导航守卫（token 鉴权）
-- **状态管理**：Pinia Store（counter / search）、`pinia-plugin-persistedstate` 持久化
-- **HTTP 通信**：Axios 实例封装、请求/响应拦截器、token 自动注入
-- **UI 组件库**：Element Plus 集成、表单验证（内置规则 + 自定义验证器）
-- **Markdown 渲染**：v-md-editor + GitHub 主题 + 代码高亮 + 行号
-- **组件通信**：Props 传参（BlogCard）、emit 事件（ConfirmButton）
-- **计算属性**：computed 派生状态（分页计算、动态年份）
+- ⬜ 密码哈希替换为 BCrypt（当前为 Base64 编码）
+- ⬜ 刷新令牌（Refresh Token）机制
+- ⬜ 评论分页
+- ⬜ 单元测试
+- ⬜ Rate limiting
 
 ## 快速开始
 
 ### 环境要求
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Node.js](https://nodejs.org/)（建议 18+）
-- 后端 IDE：Rider
-- 前端 IDE：VS Code
+- [Node.js](https://nodejs.org/) 18+
+- [SQL Server](https://www.microsoft.com/sql-server)（LocalDB / Express / Developer 均可）
+- 可选：Visual Studio / Rider / VS Code
 
-### 运行控制台项目
+### 1. 克隆并配置数据库
 
 ```bash
-# 以 ConsoleApp13 为例
-cd Csharp/ConsoleApp13/ConsoleApp13
-dotnet run
+# 还原 NuGet 包
+cd BlogApi/BlogApi
+dotnet restore
 ```
 
-### 运行 BlogApi
+确保 `appsettings.json` 中的连接串指向你的 SQL Server 实例：
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=BlogDb;Trusted_Connection=true;TrustServerCertificate=true;"
+}
+```
+
+### 2. 运行数据库迁移
 
 ```bash
-cd BlogApi/BlogApi
+dotnet ef database update
+```
+
+此命令会执行 `Migrations/` 目录下的所有迁移，自动创建数据库和表。
+
+> 如果 `dotnet ef` 命令不可用，先安装：`dotnet tool install --global dotnet-ef`
+
+### 3. 启动后端
+
+```bash
+# 端口以 launchSettings.json 为准
 dotnet run
 ```
 
 启动后访问：
+- API 基址：`http://localhost:5256` 或 `https://localhost:7126`
+- Swagger 文档：`https://localhost:7126/swagger`
 
-- API 基址：`https://localhost:5256`（端口以 `launchSettings.json` 为准）
-- Swagger UI：`https://localhost:5256/swagger`
-
-### 运行 TodoAPI
-
-```bash
-cd TodoAPI/TodoAPI
-dotnet run
-```
-
-### 运行 BlogWeb
+### 4. 启动前端
 
 ```bash
 cd BlogWeb
@@ -217,40 +162,114 @@ npm install
 npm run dev
 ```
 
-### 运行测试
+启动后访问：`http://localhost:5173`
 
-```bash
-cd Csharp/ConsoleApp13/ConsoleApp13
-dotnet test
+### 默认端口
+
+| 服务 | URL |
+|------|-----|
+| 后端 HTTP | `http://localhost:5256` |
+| 后端 HTTPS | `https://localhost:7126` |
+| 前端开发服务器 | `http://localhost:5173` |
+| Swagger | `https://localhost:7126/swagger` |
+
+> 如遇 HTTPS 证书问题，可改用 HTTP 端口。前端 `request.ts` 中的 `baseURL` 需要对应修改。
+
+## API 概览
+
+### 认证
+
+| 方法 | 路径 | 说明 | 认证 |
+|------|------|------|------|
+| POST | `/api/auth/register` | 注册 | ❌ |
+| POST | `/api/auth/login` | 登录 | ❌ |
+| PUT | `/api/auth/profile` | 更新个人信息 | ✅ |
+| PUT | `/api/auth/change-password` | 修改密码 | ✅ |
+| GET | `/api/auth/check-username` | 检查用户名可用性 | ❌ |
+| POST | `/api/auth/upload-avatar` | 上传头像 | ✅ |
+
+### 文章
+
+| 方法 | 路径 | 说明 | 认证 |
+|------|------|------|------|
+| GET | `/api/post` | 获取全部文章 | ❌ |
+| GET | `/api/post/{id}` | 获取文章详情 | ❌ |
+| GET | `/api/post/paged` | 分页文章 | ❌ |
+| GET | `/api/post/search` | 搜索文章 | ❌ |
+| GET | `/api/post/category/{id}` | 按分类获取 | ❌ |
+| POST | `/api/post` | 创建文章 | ✅ |
+| PUT | `/api/post/{id}` | 更新文章 | ✅（作者/Admin） |
+| DELETE | `/api/post/{id}` | 删除文章 | ✅（作者/Admin） |
+
+### 评论
+
+| 方法 | 路径 | 说明 | 认证 |
+|------|------|------|------|
+| GET | `/api/comment?postId={id}` | 获取文章评论 | ❌ |
+| POST | `/api/comment` | 发表评论 | ✅ |
+| DELETE | `/api/comment/{id}` | 删除评论 | ✅（作者/Admin） |
+
+### 分类
+
+| 方法 | 路径 | 说明 | 认证 |
+|------|------|------|------|
+| GET | `/api/category` | 获取全部分类 | ❌ |
+| POST | `/api/category` | 创建分类 | ✅（Admin） |
+| DELETE | `/api/category/{id}` | 删除分类 | ✅（Admin） |
+
+### 文件
+
+| 方法 | 路径 | 说明 | 认证 |
+|------|------|------|------|
+| POST | `/api/file/upload` | 上传文件 | ✅（Admin） |
+| GET | `/api/file/download` | 下载文件 | ❌ |
+| DELETE | `/api/file/delete` | 删除文件 | ✅（Admin） |
+| GET | `/api/file/list` | 文件列表 | ❌ |
+
+## 配置说明
+
+后端配置位于 `BlogApi/BlogApi/appsettings.json`：
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=...;Database=BlogDb;..."
+  },
+  "Jwt": {
+    "Key": "你的密钥（至少 32 字符）",
+    "Issuer": "BlogApi",
+    "Audience": "BlogApi",
+    "ExpireMinutes": 60
+  }
+}
 ```
 
-## API 接口一览
+前端 API 基址在 `BlogWeb/src/utils/request.ts` 中设置：
 
-### BlogApi
+```typescript
+baseURL: "https://localhost:7126/api"   // 改为你后端的实际地址
+```
 
-| 方法     | 路径             | 说明             |
-| -------- | ---------------- | ---------------- |
-| `GET`    | `/api/todo`      | 获取所有待办事项 |
-| `GET`    | `/api/todo/{id}` | 获取单个待办事项 |
-| `POST`   | `/api/todo`      | 创建待办事项     |
-| `PUT`    | `/api/todo/{id}` | 更新待办事项     |
-| `DELETE` | `/api/todo/{id}` | 删除待办事项     |
+## 数据库设计
 
-### TodoAPI
+### 表结构
 
-| 方法     | 路径             | 说明             |
-| -------- | ---------------- | ---------------- |
-| `GET`    | `/api/todo`      | 获取所有待办事项 |
-| `GET`    | `/api/todo/{id}` | 获取单个待办事项 |
-| `POST`   | `/api/todo`      | 创建待办事项     |
-| `PUT`    | `/api/todo/{id}` | 更新待办事项     |
-| `DELETE` | `/api/todo/{id}` | 删除待办事项     |
+```
+Users      1──N Posts       (UserId → Id)
+Users      1──N Comments    (UserId → Id)
+Categories 1──N Posts       (CategoryId → Id)
+Posts      1──N Comments    (PostId → Id)
+```
 
-## 代码规范
+### 实体关系
 
-本项目遵循以下编码约定：
+| 关系 | 删除行为 |
+|------|---------|
+| Post → Comments | Cascade（删文章连带删评论） |
+| User → Posts | SetNull（删用户后文章作者置空） |
+| User → Comments | SetNull（删用户后评论作者置空） |
+| Category → Posts | SetNull（删分类后文章分类置空） |
 
-- **C#**：私有字段使用 `_` 前缀驼峰命名（`_logger`），公共属性使用帕斯卡命名，显式定义构造函数，使用 `var` 关键字
-- **TypeScript / Vue**：使用 `<script setup lang="ts">` + Composition API，`const`/`let` 禁止 `var`，CSS 类名使用 kebab-case
-- **命名空间**：使用文件范围命名空间声明（`namespace Xxx;`）
-- **项目结构**：Controller → Service → Model 分层，DTO 独立目录
+## 许可证
+
+本项目为个人练习项目。
