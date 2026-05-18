@@ -12,6 +12,8 @@ const userInfo = ref<UserProfile>({
   username: "",
   email: "",
   bio: "",
+  avatar: "",
+  role: "",
 });
 
 // 编辑用的表单数据（复制一份，避免直接修改原数据）
@@ -30,6 +32,7 @@ onMounted(() => {
       username: authStore.user.username,
       email: authStore.user.email,
       bio: authStore.user.bio,
+      role: authStore.user.role,
     };
     editForm.username = userInfo.value.username;
     editForm.email = userInfo.value.email;

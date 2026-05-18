@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import request from "../utils/request";
 
 export interface UserProfile {
@@ -6,6 +7,7 @@ export interface UserProfile {
   email: string;
   bio?: string;
   avatar?: string;
+  role: string;
 }
 
 export function updateProfile(data: {

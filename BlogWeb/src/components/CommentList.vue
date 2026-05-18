@@ -9,6 +9,7 @@ import {
   deleteComment,
   type Comment,
 } from "../api/comments";
+import { formatDateTime } from "../utils/format";
 
 interface Props {
   postId: number;
@@ -98,7 +99,7 @@ onMounted(() => {
       <div v-for="comment in comments" :key="comment.id" class="comment-item">
         <div class="comment-header">
           <span class="author">{{ comment.author }}</span>
-          <span class="time">{{ comment.createdAt }}</span>
+          <span class="time">{{ formatDateTime(comment.createdAt) }}</span>
         </div>
         <p class="comment-content">{{ comment.content }}</p>
         <div class="comment-actions">
