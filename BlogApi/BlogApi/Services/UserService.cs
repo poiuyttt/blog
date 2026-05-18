@@ -130,4 +130,50 @@ public class UserService : IUserService
         _logger.LogInformation($"用户资料更新成功：{username}");
         return user;
     }
+
+    async Task<bool> IUserService.ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            _logger.LogWarning($"修改密码失败：用户ID {userId} 不存在");
+            return false;
+        }
+
+        if (!VerifyPassword(currentPassword, user.PasswordHash))
+        {
+            _logger.LogWarning($"修改密码失败：当前密码错误（用户 {user.Username}）");
+            return false;
+        }
+
+        user.PasswordHash = HashPassword(newPassword);
+        await _context.SaveChangesAsync();
+        _logger.LogInformation($"用户密码修改成功：{user.Username}");
+        return true;
+    }
+
+    async Task<bool> IUserService.IsUsernameAvailableAsync(string username, int? excludeUserId = null)
+    {
+        var query = _context.Users.Where(u => u.Username == username);
+        if (excludeUserId.HasValue)
+        {
+            query = query.Where(u => u.Id != excludeUserId.Value);
+        }
+        return !await query.AnyAsync();
+    }
+
+    async Task<User?> IUserService.UpdateAvatarAsync(int userId, string avatarUrl)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            _logger.LogWarning($"更新头像失败：用户ID {userId} 不存在");
+            return null;
+        }
+
+        user.Avatar = avatarUrl;
+        await _context.SaveChangesAsync();
+        _logger.LogInformation($"用户头像更新成功：{user.Username}");
+        return user;
+    }
 }

@@ -33,4 +33,19 @@ public interface IUserService
     /// 更新用户个人信息
     /// </summary>
     Task<User?> UpdateProfileAsync(int userId, string username, string email, string? bio);
+
+    /// <summary>
+    /// 修改密码
+    /// </summary>
+    Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
+
+    /// <summary>
+    /// 检查用户名是否可用（排除当前用户）
+    /// </summary>
+    Task<bool> IsUsernameAvailableAsync(string username, int? excludeUserId = null);
+
+    /// <summary>
+    /// 更新用户头像
+    /// </summary>
+    Task<User?> UpdateAvatarAsync(int userId, string avatarUrl);
 }

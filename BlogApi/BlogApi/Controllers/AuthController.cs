@@ -15,14 +15,17 @@ namespace BlogApi.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IFileService _fileService;
     private readonly JwtSettings _jwtSettings;
 
     public AuthController(
         IUserService userService,
+        IFileService fileService,
         JwtSettings jwtSettings
     )
     {
         _userService = userService;
+        _fileService = fileService;
         _jwtSettings = jwtSettings;
     }
 
@@ -60,13 +63,19 @@ public class AuthController : ControllerBase
         if (user == null)
             return BadRequest(ApiResponse<object>.BadRequest("用户名或邮箱已被注册"));
 
+        var token = GenerateJwtToken(user);
+
         return Ok(
             ApiResponse<object>.Ok(
                 new
                 {
-                    user.Id,
-                    user.Username,
-                    user.Email,
+                    Token = token,
+                    User = new
+                    {
+                        user.Id,
+                        user.Username,
+                        user.Email,
+                    },
                 },
                 "注册成功"
             )
@@ -121,9 +130,79 @@ public class AuthController : ControllerBase
                     user.Id,
                     user.Username,
                     user.Email,
+                    user.Avatar,
                     user.Bio,
                 },
                 "个人信息更新成功"
+            )
+        );
+    }
+
+    [HttpPut("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+    {
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var success = await _userService.ChangePasswordAsync(userId, dto.CurrentPassword, dto.NewPassword);
+        if (!success)
+            return BadRequest(ApiResponse<object>.BadRequest("当前密码错误"));
+
+        return Ok(ApiResponse<object>.Ok(null, "密码修改成功"));
+    }
+
+    [HttpGet("check-username")]
+    public async Task<IActionResult> CheckUsername([FromQuery] string username, [FromQuery] int? excludeUserId = null)
+    {
+        var isAvailable = await _userService.IsUsernameAvailableAsync(username, excludeUserId);
+        return Ok(ApiResponse<object>.Ok(new { Available = isAvailable }, "检查成功"));
+    }
+
+    [HttpPost("upload-avatar")]
+    [Authorize]
+    public async Task<IActionResult> UploadAvatar(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(ApiResponse<object>.BadRequest("没有文件被上传"));
+        }
+
+        const int maxFileSize = 5 * 1024 * 1024;
+        if (file.Length > maxFileSize)
+        {
+            return BadRequest(ApiResponse<object>.BadRequest("文件大小不能超过 5MB"));
+        }
+
+        string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        string extension = Path.GetExtension(file.FileName).ToLower();
+        if (!allowedExtensions.Contains(extension))
+        {
+            return BadRequest(
+                ApiResponse<object>.BadRequest(
+                    $"不支持的文件类型：{extension}，仅支持 {string.Join(", ", allowedExtensions)}"
+                )
+            );
+        }
+
+        string relativePath = await _fileService.SaveFileAsync(file);
+        string fileUrl = $"{Request.Scheme}://{Request.Host}/{relativePath}";
+
+        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await _userService.UpdateAvatarAsync(userId, fileUrl);
+        if (user == null)
+            return BadRequest(ApiResponse<object>.BadRequest("更新头像失败"));
+
+        return Ok(
+            ApiResponse<object>.Ok(
+                new
+                {
+                    user.Id,
+                    user.Username,
+                    user.Email,
+                    user.Avatar,
+                    user.Bio,
+                },
+                "头像更新成功"
             )
         );
     }
