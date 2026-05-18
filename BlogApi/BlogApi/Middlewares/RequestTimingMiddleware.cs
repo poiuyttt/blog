@@ -1,4 +1,4 @@
-﻿namespace BlogApi.Middlewares;
+namespace BlogApi.Middlewares;
 
 /// <summary>
 /// 自定义中间件：记录每个 HTTP 请求的执行时间
@@ -7,7 +7,7 @@
 public class RequestTimingMiddleware
 {
     // RequestDelegate：下一个中间件的引用
-    private RequestDelegate _next;
+    private readonly RequestDelegate _next;
 
     public RequestTimingMiddleware(RequestDelegate next)
     {

@@ -7,8 +7,8 @@ namespace BlogApi.Services;
 
 public class CategoryService : ICategoryService
 {
-    private AppDbContext _context;
-    private ILogger<CategoryService> _logger;
+    private readonly AppDbContext _context;
+    private readonly ILogger<CategoryService> _logger;
 
     public CategoryService(ILogger<CategoryService> logger, AppDbContext context)
     {

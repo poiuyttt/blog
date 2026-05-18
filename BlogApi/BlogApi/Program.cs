@@ -1,9 +1,11 @@
+using BlogApi.Authorization;
 using BlogApi.Data;
 using BlogApi.Filters;
 using BlogApi.Middlewares;
 using BlogApi.Models;
 using BlogApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -15,14 +17,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.EnableSensitiveDataLogging();
-    options.LogTo(Console.WriteLine, LogLevel.Information);
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.LogTo(Console.WriteLine, LogLevel.Information);
+    }
 });
 
 //AddCors:注册CORS服务
-builder.Services.AddCors(Options =>
+builder.Services.AddCors(options =>
 {
-    Options.AddPolicy(
+    options.AddPolicy(
         "AllowVueClient",
         policy =>
         {
@@ -59,6 +64,13 @@ builder
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
         };
     });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOrAuthor", policy =>
+        policy.Requirements.Add(new IsAuthorRequirement()));
+    options.AddPolicy("AdminOrCommentAuthor", policy =>
+        policy.Requirements.Add(new CommentAuthorRequirement()));
+});
 
 // Add services to the container.
 builder.Services.AddScoped<IPostService, PostService>();
@@ -67,6 +79,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddSingleton(jwtSettings);
+builder.Services.AddScoped<IAuthorizationHandler, IsAuthorHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, CommentAuthorHandler>();
 builder.Services.AddSingleton<GlobalExceptionFilter>();
 builder.Services.AddSingleton<ActionLoggingFilter>();
 builder
@@ -96,7 +110,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// 📌 添加静态文件服务（必须在 UseRouting 之前）
+// 添加静态文件服务（必须在 UseRouting 之前）
 // UseStaticFiles：将 wwwroot 文件夹暴露为静态文件目录
 // 同时将 uploads 文件夹也设置为可静态访问
 app.UseStaticFiles();
@@ -115,7 +129,7 @@ app.UseStaticFiles(
 // 注意：UseCors 必须在 UseRouting 之前调用
 app.UseCors("AllowVueClient");
 
-//app.UseMiddleware<RequestTimingMiddlewares>();
+//app.UseMiddleware<RequestTimingMiddleware>();
 app.UseRequestTiming();
 
 app.UseHttpsRedirection();

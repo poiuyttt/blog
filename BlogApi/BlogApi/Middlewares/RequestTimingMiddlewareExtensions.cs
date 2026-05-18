@@ -1,4 +1,4 @@
-﻿namespace BlogApi.Middlewares;
+namespace BlogApi.Middlewares;
 
 /// <summary>
 /// 为 IApplicationBuilder 添加自定义扩展方法

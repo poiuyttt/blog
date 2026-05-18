@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using BlogApi.Models;
 using BlogApi.Models.Dtos;
 using BlogApi.Services;
@@ -10,7 +11,7 @@ namespace BlogApi.Controllers;
 [Route("api/[controller]")]
 public class PostController : ControllerBase
 {
-    private IPostService _postService;
+    private readonly IPostService _postService;
 
     public PostController(IPostService postService)
     {
@@ -40,12 +41,16 @@ public class PostController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
     {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var username = User.FindFirstValue(ClaimTypes.Name)!;
+
         var post = await _postService.CreateAsync(
             createPostDto.Title,
             createPostDto.Content,
             createPostDto.Summary,
-            "当前用户",
-            createPostDto.CategoryId
+            username,
+            createPostDto.CategoryId,
+            userId
         );
         return CreatedAtAction(
             nameof(GetById),
@@ -55,7 +60,7 @@ public class PostController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize]
+    [Authorize(Policy = "AdminOrAuthor")]
     public async Task<IActionResult> Update(int id, [FromBody] CreatePostDto updatePostDto)
     {
         var success = await _postService.UpdateAsync(
@@ -73,7 +78,7 @@ public class PostController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize]
+    [Authorize(Policy = "AdminOrAuthor")]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _postService.DeleteAsync(id);
@@ -112,7 +117,12 @@ public class PostController : ControllerBase
         [FromQuery] int pageSize = 10
     )
     {
-        var (data, totalCount) = await _postService.SearchAsync(keyword, categoryId, page, pageSize);
+        var (data, totalCount) = await _postService.SearchAsync(
+            keyword,
+            categoryId,
+            page,
+            pageSize
+        );
         return Ok(
             ApiResponse<object>.Ok(
                 new
@@ -137,17 +147,17 @@ public class PostController : ControllerBase
     {
         var (data, totalCount) = await _postService.GetByCategoryAsync(categoryId, page, pageSize);
         return Ok(
-                ApiResponse<object>.Ok(
-                    new
-                    {
-                        Data = data,
-                        TotalCount = totalCount,
-                        Page = page,
-                        PageSize = pageSize,
-                        TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
-                    },
-                    "获取分类文章成功"
-                )
-            );
+            ApiResponse<object>.Ok(
+                new
+                {
+                    Data = data,
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                },
+                "获取分类文章成功"
+            )
+        );
     }
 }

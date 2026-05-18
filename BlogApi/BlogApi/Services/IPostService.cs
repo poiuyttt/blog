@@ -13,7 +13,7 @@ public interface IPostService
 
     Task<Post?> GetByIdAsync(int id);
 
-    Task<Post> CreateAsync(string title, string content, string? summary, string author, int? categoryId = null);
+    Task<Post> CreateAsync(string title, string content, string? summary, string author, int? categoryId, int userId);
 
     Task<bool> UpdateAsync(int id, string title, string content, string? summary, int? categoryId = null);
 

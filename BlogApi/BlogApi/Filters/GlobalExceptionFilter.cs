@@ -1,8 +1,8 @@
-﻿using BlogApi.Models;
+using BlogApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace BlogApi.Middlewares;
+namespace BlogApi.Filters;
 
 /// <summary>
 /// 全局异常过滤器
@@ -11,7 +11,7 @@ namespace BlogApi.Middlewares;
 /// </summary>
 public class GlobalExceptionFilter : IExceptionFilter
 {
-    private ILogger<GlobalExceptionFilter> _logger;
+    private readonly ILogger<GlobalExceptionFilter> _logger;
 
     /// <summary>
     /// 构造函数注入日志器

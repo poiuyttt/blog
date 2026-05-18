@@ -1,4 +1,4 @@
-﻿namespace BlogApi.Models;
+namespace BlogApi.Models;
 
 /// <summary>
 /// 统一 API 响应结果

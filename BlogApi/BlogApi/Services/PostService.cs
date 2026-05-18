@@ -7,8 +7,8 @@ namespace BlogApi.Services;
 
 public class PostService : IPostService
 {
-    private AppDbContext _context;
-    private ILogger<PostService> _logger;
+    private readonly AppDbContext _context;
+    private readonly ILogger<PostService> _logger;
 
     public PostService(ILogger<PostService> logger, AppDbContext context)
     {
@@ -39,7 +39,8 @@ public class PostService : IPostService
         string content,
         string? summary,
         string author,
-        int? categoryId = null
+        int? categoryId,
+        int userId
     )
     {
         var post = new Post
@@ -51,6 +52,7 @@ public class PostService : IPostService
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now,
             CategoryId = categoryId,
+            UserId = userId,
         };
         _context.Posts.Add(post);
         await _context.SaveChangesAsync();

@@ -27,7 +27,7 @@ public class Post
     public string? Summary { get; set; }
 
     [StringLength(100)]
-    public string Author { get; set; } = "当前用户"; // 暂时固定，后续接入认证
+    public string Author { get; set; } = "当前用户";
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
