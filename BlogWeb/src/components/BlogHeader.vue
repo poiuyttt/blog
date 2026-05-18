@@ -36,6 +36,7 @@ function goToSearch(): void {
       <router-link to="/" class="logo">我的全栈博客</router-link>
       <div class="nav-links">
         <router-link to="/">首页</router-link>
+        <router-link to="/files">图库</router-link>
         <router-link to="/about">关于</router-link>
       </div>
       <div class="search-box">
@@ -56,12 +57,11 @@ function goToSearch(): void {
         <router-link v-if="!authStore.isLoggedIn" to="/register"
           >注册</router-link
         >
-        <a
-          v-if="authStore.isLoggedIn"
-          @click="handleLogout"
-          style="cursor: pointer"
-          >退出</a
-        >
+        <template v-if="authStore.isLoggedIn">
+          <router-link to="/article/new">📝 新建文章</router-link>
+          <router-link to="/profile">👤 个人中心</router-link>
+          <a @click="handleLogout" style="cursor: pointer">退出</a>
+        </template>
       </div>
     </nav>
   </header>
@@ -74,8 +74,6 @@ function goToSearch(): void {
   padding: 0 20px;
 }
 .nav {
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -10,9 +10,11 @@ import {
   type Comment,
 } from "../api/comments";
 import { formatDateTime } from "../utils/format";
+import { hasRole, getCurrentUsername } from "../utils/auth";
 
 interface Props {
   postId: number;
+  postAuthor: string;
 }
 
 const props = defineProps<Props>();
@@ -22,6 +24,15 @@ const router = useRouter();
 const comments = ref<Comment[]>([]);
 const loading = ref<boolean>(false);
 const newComment = ref<string>("");
+
+// 检查用户是否能删除评论
+const canDeleteComment = (comment: Comment): boolean => {
+  const currentUsername = getCurrentUsername();
+  const isAdmin = hasRole("Admin");
+  const isCommentAuthor = currentUsername === comment.author;
+  const isPostAuthor = currentUsername === props.postAuthor;
+  return isAdmin || isCommentAuthor || isPostAuthor;
+};
 
 // ----- Emits：向父组件发送事件 -----
 const emit = defineEmits<{
@@ -104,6 +115,7 @@ onMounted(() => {
         <p class="comment-content">{{ comment.content }}</p>
         <div class="comment-actions">
           <el-button
+            v-if="canDeleteComment(comment)"
             type="danger"
             size="small"
             @click="handleDelete(comment.id)"

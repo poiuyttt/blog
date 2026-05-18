@@ -54,6 +54,11 @@ const routes = [
     component: () => import("../views/ProfilePage.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: "/files",
+    name: "files",
+    component: () => import("../views/ImageGallery.vue"),
+  },
 ];
 
 const router = createRouter({

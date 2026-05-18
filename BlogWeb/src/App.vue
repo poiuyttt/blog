@@ -69,6 +69,7 @@ body {
   font-family: Arial, sans-serif;
   background-color: #f5f5f5;
 }
+
 main {
   min-height: calc(100vh - 200px);
   padding: 20px 0;
@@ -77,9 +78,7 @@ main {
 .app-container {
   display: flex;
   gap: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 40px;
 }
 
 .main-content {

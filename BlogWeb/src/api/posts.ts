@@ -119,3 +119,10 @@ export function deleteCategory(id: number): Promise<{
 }> {
   return request.delete(`/category/${id}`);
 }
+
+export function deletePost(id: number): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  return request.delete(`/post/${id}`);
+}

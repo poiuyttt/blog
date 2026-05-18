@@ -1,4 +1,3 @@
-import { ref } from "vue";
 import request from "../utils/request";
 
 export interface UserProfile {

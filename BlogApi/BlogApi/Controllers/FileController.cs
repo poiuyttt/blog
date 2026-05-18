@@ -21,7 +21,7 @@ public class FileController : ControllerBase
     /// </summary>
     /// <param name="file">上传的文件（通过 FormData 发送）</param>
     [HttpPost("upload")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Upload(IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -86,5 +86,44 @@ public class FileController : ControllerBase
         };
 
         return File(fileBytes, contentType);
+    }
+
+    /// <summary>
+    /// DELETE api/file/delete — 删除文件
+    /// </summary>
+    [HttpDelete("delete")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete([FromQuery] string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return BadRequest(ApiResponse<object>.BadRequest("文件路径不能为空"));
+        }
+
+        bool success = await _fileService.DeleteFileAsync(path);
+        if (!success)
+        {
+            return NotFound(ApiResponse<object>.NotFound("文件不存在或删除失败"));
+        }
+
+        return Ok(ApiResponse<object>.Ok(null, "文件删除成功"));
+    }
+
+    /// <summary>
+    /// GET api/file/list — 获取所有文件列表
+    /// </summary>
+    [HttpGet("list")]
+    public async Task<IActionResult> GetAllFiles()
+    {
+        var files = await _fileService.GetAllFilesAsync();
+
+        var fileList = files.Select(f => new
+        {
+            Name = f.Name,
+            Url = $"{Request.Scheme}://{Request.Host}/{f.RelativePath}",
+            RelativePath = f.RelativePath
+        });
+
+        return Ok(ApiResponse<object>.Ok(fileList, "获取文件列表成功"));
     }
 }

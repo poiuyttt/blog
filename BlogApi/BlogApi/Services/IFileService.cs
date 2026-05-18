@@ -18,4 +18,17 @@ public interface IFileService
     /// <param name="relativePath">文件相对路径</param>
     /// <returns>文件字节数组，文件不存在则返回 null</returns>
     Task<byte[]> GetFileBytesAsync(string relativePath);
+
+    /// <summary>
+    /// 删除文件
+    /// </summary>
+    /// <param name="relativePath">文件相对路径</param>
+    /// <returns>是否删除成功</returns>
+    Task<bool> DeleteFileAsync(string relativePath);
+
+    /// <summary>
+    /// 获取所有已上传的文件列表
+    /// </summary>
+    /// <returns>文件信息列表</returns>
+    Task<List<(string Name, string RelativePath)>> GetAllFilesAsync();
 }

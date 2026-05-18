@@ -68,4 +68,54 @@ public class FileService : IFileService
 
         return await File.ReadAllBytesAsync(fullPath);
     }
+
+    /// <summary>
+    /// 删除文件
+    /// </summary>
+    public async Task<bool> DeleteFileAsync(string relativePath)
+    {
+        string fullPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), relativePath));
+
+        if (!fullPath.StartsWith(_uploadRoot, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (!File.Exists(fullPath))
+        {
+            return false;
+        }
+
+        await Task.Run(() => File.Delete(fullPath));
+        return true;
+    }
+
+    /// <summary>
+    /// 获取所有已上传的文件列表
+    /// </summary>
+    public Task<List<(string Name, string RelativePath)>> GetAllFilesAsync()
+    {
+        var files = new List<(string Name, string RelativePath, DateTime CreationTime)>();
+
+        if (Directory.Exists(_uploadRoot))
+        {
+            var allFiles = Directory.GetFiles(_uploadRoot, "*.*", SearchOption.AllDirectories);
+
+            foreach (var fullPath in allFiles)
+            {
+                string relativePath = Path.Combine("uploads", Path.GetRelativePath(_uploadRoot, fullPath))
+                    .Replace("\\", "/");
+                string fileName = Path.GetFileName(fullPath);
+                DateTime creationTime = File.GetCreationTime(fullPath);
+                files.Add((fileName, relativePath, creationTime));
+            }
+        }
+
+        var result = files
+            .OrderByDescending(f => f.CreationTime)
+            .Select(f => (f.Name, f.RelativePath))
+            .ToList();
+
+        return Task.FromResult(result);
+    }
 }

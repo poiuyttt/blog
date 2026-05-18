@@ -75,7 +75,6 @@ watch(
 
 <style scoped>
 .home {
-  width: 100%;
 }
 
 .section-title {
