@@ -30,8 +30,7 @@ const canDeleteComment = (comment: Comment): boolean => {
   const currentUsername = getCurrentUsername();
   const isAdmin = hasRole("Admin");
   const isCommentAuthor = currentUsername === comment.author;
-  const isPostAuthor = currentUsername === props.postAuthor;
-  return isAdmin || isCommentAuthor || isPostAuthor;
+  return isAdmin || isCommentAuthor;
 };
 
 // ----- Emits：向父组件发送事件 -----

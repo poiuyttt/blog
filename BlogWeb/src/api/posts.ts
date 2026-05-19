@@ -19,7 +19,11 @@ export interface Category {
   postCount: number;
 }
 
-export function getPosts(): Promise<Post[]> {
+export function getPosts(): Promise<{
+  success: boolean;
+  data: Post[];
+  message: string;
+}> {
   return request.get("/post");
 }
 

@@ -73,14 +73,13 @@ const handleRegister = async () => {
       return;
     }
     try {
-      const res = await register({
+      await register({
         username: registerForm.username,
         email: registerForm.email,
         password: registerForm.password,
       });
-      authStore.setAuth(res.data.token, res.data.user);
-      ElMessage.success("注册并登录成功！");
-      router.push("/");
+      ElMessage.success("注册成功！请登录。");
+      router.push("/login");
     } catch (err: any) {
       const msg = err.response?.data?.message || "注册失败";
       ElMessage.error(msg);

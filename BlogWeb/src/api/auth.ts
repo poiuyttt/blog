@@ -22,8 +22,9 @@ export function register(data: {
 }): Promise<{
   success: boolean;
   data: {
-    token: string;
-    user: UserProfile;
+    id: number;
+    username: string;
+    email: string;
   };
   message: string;
 }> {

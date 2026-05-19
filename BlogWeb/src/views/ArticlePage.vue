@@ -108,7 +108,7 @@ const loadAllPosts = async () => {
   try {
     const res = await getPosts();
     // 按创建时间降序排序
-    allPosts.value = (res as any).data || res || [];
+    allPosts.value = res.data || [];
     allPosts.value.sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),

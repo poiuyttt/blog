@@ -21,10 +21,6 @@ const isAdmin = ref<boolean>(false);
 const isAuthor = ref<boolean>(false);
 const canEdit = computed<boolean>(() => !isEditMode.value || isAuthor.value);
 
-onMounted(() => {
-  isAdmin.value = hasRole("Admin");
-});
-
 const postId = route.params.id ? Number(route.params.id) : null;
 const isEditMode = computed<boolean>(() => postId !== null);
 
@@ -76,6 +72,7 @@ const handleDeleteCategory = async (categoryId: number) => {
 };
 
 onMounted(async () => {
+  isAdmin.value = hasRole("Admin");
   await loadCategories();
   if (postId) {
     try {
@@ -221,7 +218,7 @@ const handleUploadImage = async (
               effect="plain"
               class="category-tag"
               @click="form.categoryId = category.id"
-              closable
+              :closable="isAdmin"
               @close.stop="handleDeleteCategory(category.id)"
             >
               {{ category.name }}
@@ -236,6 +233,7 @@ const handleUploadImage = async (
               不选分类
             </el-tag>
             <el-popover
+              v-if="isAdmin"
               placement="bottom"
               title="新建分类"
               trigger="click"
