@@ -63,10 +63,7 @@
 │       │   ├── BlogFooter.vue       # 页脚
 │       │   ├── PostList.vue         # 文章列表（分页组件）
 │       │   ├── CommentList.vue      # 评论列表 + 发表
-│       │   ├── CategorySidebar.vue  # 分类侧边栏
-│       │   ├── BlogCard.vue         # 文章卡片
-│       │   ├── FileUpload.vue       # 文件上传
-│       │   └── ConfirmButton.vue    # 确认按钮
+│       │   └── CategorySidebar.vue  # 分类侧边栏
 │       ├── stores/            # Pinia 状态管理
 │       │   ├── auth.ts              # 认证状态（token + 用户信息）
 │       │   └── search.ts            # 搜索状态（持久化）
