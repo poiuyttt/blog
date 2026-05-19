@@ -5,7 +5,7 @@ namespace BlogApi.Models.Dtos;
 public class UpdateProfileDto
 {
     [Required(ErrorMessage = "用户名不能为空")]
-    [StringLength(50, MinimumLength = 3)]
+    [StringLength(20, MinimumLength = 3)]
     public string Username { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "邮箱不能为空")]

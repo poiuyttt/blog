@@ -1,12 +1,12 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using BlogApi.Models;
 using BlogApi.Models.Dtos;
 using BlogApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace BlogApi.Controllers;
 
@@ -75,6 +75,9 @@ public class AuthController : ControllerBase
                         user.Id,
                         user.Username,
                         user.Email,
+                        user.Role,
+                        user.Avatar,
+                        user.Bio,
                     },
                 },
                 "注册成功"
@@ -102,6 +105,8 @@ public class AuthController : ControllerBase
                         user.Username,
                         user.Email,
                         user.Avatar,
+                        user.Role,
+                        user.Bio,
                     },
                 },
                 "登录成功"
@@ -115,12 +120,7 @@ public class AuthController : ControllerBase
     {
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var user = await _userService.UpdateProfileAsync(
-            userId,
-            dto.Username,
-            dto.Email,
-            dto.Bio
-        );
+        var user = await _userService.UpdateProfileAsync(userId, dto.Username, dto.Email, dto.Bio);
         if (user == null)
             return BadRequest(ApiResponse<object>.BadRequest("用户名已被占用或用户不存在"));
         return Ok(
@@ -132,6 +132,7 @@ public class AuthController : ControllerBase
                     user.Email,
                     user.Avatar,
                     user.Bio,
+                    user.Role,
                 },
                 "个人信息更新成功"
             )
@@ -144,7 +145,11 @@ public class AuthController : ControllerBase
     {
         int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var success = await _userService.ChangePasswordAsync(userId, dto.CurrentPassword, dto.NewPassword);
+        var success = await _userService.ChangePasswordAsync(
+            userId,
+            dto.CurrentPassword,
+            dto.NewPassword
+        );
         if (!success)
             return BadRequest(ApiResponse<object>.BadRequest("当前密码错误"));
 
@@ -152,7 +157,10 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("check-username")]
-    public async Task<IActionResult> CheckUsername([FromQuery] string username, [FromQuery] int? excludeUserId = null)
+    public async Task<IActionResult> CheckUsername(
+        [FromQuery] string username,
+        [FromQuery] int? excludeUserId = null
+    )
     {
         var isAvailable = await _userService.IsUsernameAvailableAsync(username, excludeUserId);
         return Ok(ApiResponse<object>.Ok(new { Available = isAvailable }, "检查成功"));
@@ -201,6 +209,7 @@ public class AuthController : ControllerBase
                     user.Email,
                     user.Avatar,
                     user.Bio,
+                    user.Role,
                 },
                 "头像更新成功"
             )

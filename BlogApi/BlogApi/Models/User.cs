@@ -14,7 +14,7 @@ public class User
     public int Id { get; set; }
 
     [Required]
-    [StringLength(50, MinimumLength = 3)]
+    [StringLength(20, MinimumLength = 3)]
     public string Username { get; set; } = string.Empty;
 
     [Required]

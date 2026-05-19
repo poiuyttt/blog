@@ -91,6 +91,8 @@ builder
     })
     .AddJsonOptions(options =>
     {
+        // 使用 camelCase 命名（与前端一致）
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
         // 解决前后端字段名大小写不匹配的问题
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
         // 解决循环引用问题
