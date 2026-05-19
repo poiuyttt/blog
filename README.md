@@ -1,6 +1,6 @@
-# 📝 博客系统（BlogApi + BlogWeb）
+# 📝 博客（BlogApi + BlogWeb）
 
-基于 ASP.NET Core 8 + Vue 3 的全博客应用，支持文章的 Markdown 编辑与预览、分类管理、评论系统、JWT 用户认证、文件上传等功能。
+基于 ASP.NET Core 8 + Vue 3 的博客应用，支持文章的 Markdown 编辑与预览、分类管理、评论系统、JWT 用户认证、文件上传等功能。
 
 ## 技术栈
 
@@ -73,8 +73,8 @@
 │       │   ├── auth.ts              # JWT 解析 + 角色判断
 │       │   └── format.ts            # 日期格式化
 │       └── types/             # TypeScript 类型声明
-│
-└── TodoAPI/                   # 另一个练习用 Todo API
+
+
 ```
 
 ## 功能特性
