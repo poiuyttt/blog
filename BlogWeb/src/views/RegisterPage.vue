@@ -55,9 +55,7 @@ const rules: FormRules = {
     },
   ],
   confirmPassword: [
-    // 必填验证规则：当用户离开输入框时检查是否为空，若为空则显示提示"请再次输入密码"
     { required: true, message: "请再次输入密码", trigger: "blur" },
-    // 自定义验证规则：使用 validateConfirmPassword 函数验证两次输入的密码是否一致，在失去焦点时触发
     { validator: validateConfirmPassword, trigger: "blur" },
   ],
 };
@@ -73,13 +71,14 @@ const handleRegister = async () => {
       return;
     }
     try {
-      await register({
+      const res = await register({
         username: registerForm.username,
         email: registerForm.email,
         password: registerForm.password,
       });
-      ElMessage.success("注册成功！请登录。");
-      router.push("/login");
+      authStore.setAuth(res.data.token, res.data.user);
+      ElMessage.success("注册并登录成功！");
+      router.push("/");
     } catch (err: any) {
       const msg = err.response?.data?.message || "注册失败";
       ElMessage.error(msg);

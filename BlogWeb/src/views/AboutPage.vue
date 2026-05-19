@@ -1,8 +1,4 @@
-<script setup lang="ts">
-import { useCounterStore } from "../stores/counter";
-
-const counterStore = useCounterStore();
-</script>
+<script setup lang="ts"></script>
 <template>
   <div>
     <h2>关于页面</h2>

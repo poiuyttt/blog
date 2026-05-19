@@ -162,8 +162,8 @@ const passwordRules: FormRules = {
     { required: true, message: "请输入新密码", trigger: "blur" },
     {
       min: 6,
-      max: 50,
-      message: "新密码长度必须在 6 到 50 个字符之间",
+      max: 20,
+      message: "新密码长度必须在 6 到 20 个字符之间",
       trigger: "blur",
     },
   ],

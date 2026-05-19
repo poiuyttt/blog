@@ -2,7 +2,7 @@
 
 <template>
   <footer class="blog-footer">
-    <p>&copy; {{ new Date().getFullYear() }} 我的全栈博客 · 保留所有权利</p>
+    <p>&copy; {{ new Date().getFullYear() }} MyBlog · 保留所有权利</p>
   </footer>
 </template>
 

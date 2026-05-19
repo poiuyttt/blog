@@ -33,7 +33,7 @@ function goToSearch(): void {
 <template>
   <header class="blog-header">
     <nav class="nav">
-      <router-link to="/" class="logo">我的全栈博客</router-link>
+      <router-link to="/" class="logo">MyBlog</router-link>
       <div class="nav-links">
         <router-link to="/">首页</router-link>
         <router-link to="/files">图库</router-link>
@@ -58,7 +58,7 @@ function goToSearch(): void {
           >注册</router-link
         >
         <template v-if="authStore.isLoggedIn">
-          <router-link to="/article/new">📝 新建文章</router-link>
+          <router-link to="/article/new">📝 写博客</router-link>
           <router-link to="/profile">👤 个人中心</router-link>
           <a @click="handleLogout" style="cursor: pointer">退出</a>
         </template>

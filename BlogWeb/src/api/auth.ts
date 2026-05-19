@@ -1,10 +1,7 @@
 import request from "../utils/request";
 import type { UserProfile } from "./user";
 
-export function login(data: {
-  username: string;
-  password: string;
-}): Promise<{
+export function login(data: { username: string; password: string }): Promise<{
   success: boolean;
   data: {
     token: string;
@@ -22,9 +19,8 @@ export function register(data: {
 }): Promise<{
   success: boolean;
   data: {
-    id: number;
-    username: string;
-    email: string;
+    token: string;
+    user: UserProfile;
   };
   message: string;
 }> {
